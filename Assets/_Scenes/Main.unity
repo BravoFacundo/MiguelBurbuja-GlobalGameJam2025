@@ -815,7 +815,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c7bb24b96f6dc94ca8fcd04fe7a79b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentGameState: 0
+  currentGameState: 10
   gameController: {fileID: 724916347}
 --- !u!1 &176123010
 GameObject:
@@ -19666,6 +19666,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 0ac0c43f858678749993f5b7ba31f3b8, type: 3}
   - {fileID: 8300000, guid: 0ac0c43f858678749993f5b7ba31f3b8, type: 3}
   - {fileID: 8300000, guid: 0ac0c43f858678749993f5b7ba31f3b8, type: 3}
+  transitionDuration: 1
 --- !u!1 &1509464885
 GameObject:
   m_ObjectHideFlags: 0

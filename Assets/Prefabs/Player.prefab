@@ -136,7 +136,12 @@ MonoBehaviour:
   blowStamina: 250
   blowCost: 100
   staminaRecoveryRate: 1
+  detectionRadius: 1110
+  colliderLayer:
+    serializedVersion: 2
+    m_Bits: 64
   popSFX: {fileID: 8300000, guid: f1087b07f2238ed4cb2136ff419d407a, type: 3}
+  inhalerSFX: {fileID: 0}
   gameController: {fileID: 0}
   uiManager: {fileID: 0}
 --- !u!58 &8300149969560397254

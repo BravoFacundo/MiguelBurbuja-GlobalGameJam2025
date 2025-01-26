@@ -17,8 +17,13 @@ public class PlayerController : MonoBehaviour
     float maxInterval = 1.0f;
     private float nextForceTime;
 
+    [Header("Music")]
+    [SerializeField] float detectionRadius = 5f;
+    [SerializeField] LayerMask colliderLayer;
+
     [Header("Sounds")]
     [SerializeField] AudioClip popSFX;
+    [SerializeField] AudioClip inhalerSFX;
 
     [Header("References")]
     [SerializeField] private GameController gameController;
@@ -46,6 +51,15 @@ public class PlayerController : MonoBehaviour
 
         Handle_RandomForce();
         Handle_BlowStamina();
+
+        if (IsNearCollider())
+        {
+            Debug.Log("¡Hay un collider cercano!");
+        }
+        else
+        {
+            Debug.Log("No hay colliders cercanos.");
+        }
     }
 
     private void Handle_Inputs()
@@ -107,6 +121,12 @@ public class PlayerController : MonoBehaviour
         Utilities.PlaySoundAndDestroy(popSFX);
         yield return new WaitForSeconds(1f);
         gameController.PlayerDie();
+    }
+
+    public bool IsNearCollider()
+    {
+        Collider[] nearbyColliders = Physics.OverlapSphere(transform.position, detectionRadius, colliderLayer);
+        return nearbyColliders.Length > 0; // Si hay al menos uno, estás cerca
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

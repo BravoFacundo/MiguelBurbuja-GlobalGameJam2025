@@ -19,7 +19,7 @@ public class MusicManager : MonoBehaviour
             source.clip = musicClips[i];
             source.loop = true;
             source.playOnAwake = false;
-            source.volume = (i == 0) ? .5f : 0f;
+            source.volume = (i == 0) ? .2f : 0f;
             source.Play();
             audioSources.Add(source);
         }

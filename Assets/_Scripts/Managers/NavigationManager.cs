@@ -100,7 +100,7 @@ public class NavigationManager : MonoBehaviour
 
         if (gameManager.currentGameState == GameState.LoreScreen)
             gameManager.SetGameState(GameState.TutorialScreen);
-        else if (gameManager.currentGameState == GameState.WinScreen)
+        else if (gameManager.currentGameState == GameState.WinScreen || gameManager.currentGameState == GameState.LoseScreen)
             gameManager.SetGameState(GameState.Menu);
         else gameManager.SetGameState(GameState.Game);
 

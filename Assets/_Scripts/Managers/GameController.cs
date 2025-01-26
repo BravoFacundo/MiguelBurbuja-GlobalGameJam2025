@@ -13,7 +13,7 @@ public class GameController : MonoBehaviour
 
     private Transform grid;
 
-    [SerializeField] GameManager GameManager;
+    [SerializeField] GameManager gameManager;
     public PlayerController player;
     [SerializeField] List<GameObject> levelPrefabs;
 
@@ -41,11 +41,14 @@ public class GameController : MonoBehaviour
 
     public void ReachedGoal()
     {
-        //Debug.Log("Reached Goal, loading next level");
         currentLevel++;
         maxLevelReached++; Math.Clamp(maxLevelReached, 1, levelPrefabs.Count-1);
-        if (maxLevelReached > levelPrefabs.Count) GameManager.SetGameState(GameState.WinScreen);
-        else GameManager.SetGameState(GameState.NextLevelScreen);
+        if (maxLevelReached > levelPrefabs.Count) gameManager.SetGameState(GameState.WinScreen);
+        else gameManager.SetGameState(GameState.NextLevelScreen);
+    }
+    public void PlayerDie()
+    {
+        gameManager.SetGameState(GameState.LoseScreen);
     }
 
     public void SavePlayerProgress()
@@ -66,7 +69,6 @@ public class GameController : MonoBehaviour
         }
         catch (IOException ex) { Debug.LogError($"Error saving data: {ex.Message}"); }        
     }
-
     private PlayerData LoadFromJson()
     {
         try
@@ -94,7 +96,6 @@ public class GameController : MonoBehaviour
             return null;
         }
     }
-
     private PlayerData CreateDefaultData()
     {
         PlayerData defaultData = new PlayerData

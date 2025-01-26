@@ -96,15 +96,17 @@ public class PlayerController : MonoBehaviour
     {
         if (collision.gameObject.layer == LayerMask.NameToLayer("Colliders"))
         {
-            rb.constraints = RigidbodyConstraints2D.FreezePosition;
-            StartCoroutine(nameof(DelayedCollisionEnter2D));
+            StartCoroutine(nameof(DelayedDeath));
         }
     }
-    private IEnumerator DelayedCollisionEnter2D()
+    private IEnumerator DelayedDeath()
     {
+        rb.constraints = RigidbodyConstraints2D.FreezePosition;
         yield return new WaitForSeconds(.15f);
         Destroy(gameObject);
         Utilities.PlaySoundAndDestroy(popSFX);
+        yield return new WaitForSeconds(1f);
+        gameController.PlayerDie();
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -115,7 +117,7 @@ public class PlayerController : MonoBehaviour
         }
         else if (collision.CompareTag("PowerUp"))
         {
-
+            StartCoroutine(nameof(DelayedPowerUp), collision.transform.parent.gameObject);
         }
     }
     private IEnumerator DelayedGoal()
@@ -124,6 +126,13 @@ public class PlayerController : MonoBehaviour
         Utilities.PlaySoundAndDestroy(popSFX);
         rb.constraints = RigidbodyConstraints2D.FreezePosition;
         gameController.ReachedGoal();
+    }
+    private IEnumerator DelayedPowerUp(GameObject inhaler)
+    {
+        yield return new WaitForSeconds(.25f);
+        blowStamina = maxStamina;
+        Utilities.PlaySoundAndDestroy(popSFX);
+        Destroy(inhaler);
     }
 
     private void OnTriggerStay2D(Collider2D collision)

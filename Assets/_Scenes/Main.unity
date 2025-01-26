@@ -19627,8 +19627,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1503134115}
+  - component: {fileID: 1503134116}
   m_Layer: 0
-  m_Name: SoundManager
+  m_Name: MusicManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -19649,6 +19650,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1136733267}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1503134116
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1503134114}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1e62e015460a1d418e0bded46df3161, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  musicClips:
+  - {fileID: 8300000, guid: 0ac0c43f858678749993f5b7ba31f3b8, type: 3}
+  - {fileID: 8300000, guid: 0ac0c43f858678749993f5b7ba31f3b8, type: 3}
+  - {fileID: 8300000, guid: 0ac0c43f858678749993f5b7ba31f3b8, type: 3}
 --- !u!1 &1509464885
 GameObject:
   m_ObjectHideFlags: 0

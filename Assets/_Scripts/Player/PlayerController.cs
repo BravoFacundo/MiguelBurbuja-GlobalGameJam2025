@@ -65,10 +65,12 @@ public class PlayerController : MonoBehaviour
     void Blow(Vector2 dir)
     {
         rb.AddForce(dir * blowForce, ForceMode2D.Impulse);
+        uiManager.SetBlowFacesBlue();
         blowStamina -= blowCost;
 
         uiManager.playerPos = transform;
         uiManager.StartCoroutine("SetBlowFace", dir);
+        if (blowStamina <= blowCost) uiManager.SetBlowFacesRed(.35f);
     }
 
     private void Handle_RandomForce()
@@ -128,8 +130,8 @@ public class PlayerController : MonoBehaviour
     {
         if (collision.CompareTag("Wind"))
         {
-            Vector2 windDir = collision.GetComponent<Wind>().windDirection;
-            rb.AddForce(windDir * blowForce * .01f, ForceMode2D.Impulse);
+            Vector2 windDir = collision.GetComponentInParent<Wind>().windDirection;
+            rb.AddForce(.01f * blowForce * windDir, ForceMode2D.Impulse);
         }
     }
 

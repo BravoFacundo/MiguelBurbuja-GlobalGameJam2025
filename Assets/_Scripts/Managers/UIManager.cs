@@ -11,7 +11,6 @@ public class UIManager : MonoBehaviour
 
     [Header("Blow")]
     [SerializeField] List<GameObject> blowFaces = new (4);
-    GameObject newBlowFace;
     [SerializeField] BlowFacesMovement blowFacesMovement;
     [SerializeField] Color normalTint; 
     [SerializeField] Color tiredTint;
@@ -40,6 +39,7 @@ public class UIManager : MonoBehaviour
     {
         blowFacesMovement.PlayerPos = playerPos;
 
+        GameObject newBlowFace;
         if (dir == Vector2.left)
         {
             blowFaces[1].GetComponent<Image>().color = SetAlpha(blowFaces[1].GetComponent<Image>().color, 1f);
@@ -60,6 +60,7 @@ public class UIManager : MonoBehaviour
             blowFaces[2].GetComponent<Image>().color = SetAlpha(blowFaces[2].GetComponent<Image>().color, 1f);
             newBlowFace = blowFaces[2];
         }
+        else newBlowFace = null;
 
         Utilities.PlaySoundAndDestroy(blowSFX);
 
@@ -68,12 +69,15 @@ public class UIManager : MonoBehaviour
     }
     private void SetBlowFaceOff(GameObject blowFace)
     {
-        Image blowImg = blowFace.GetComponent<Image>();
-        if (blowImg != null)
+        if (blowFace != null)
         {
-            blowImg.color = normalTint;
-            blowImg.sprite = spriteFaces[Random.Range(0, spriteFaces.Count)];
-            blowImg.color = SetAlpha(blowImg.color, 0f);
+            Image blowImg = blowFace.GetComponent<Image>();
+            if (blowImg != null)
+            {
+                blowImg.color = normalTint;
+                blowImg.sprite = spriteFaces[Random.Range(0, spriteFaces.Count)];
+                blowImg.color = SetAlpha(blowImg.color, 0f);
+            }
         }
     }
     private void SetBlowFacesOff()
@@ -83,13 +87,52 @@ public class UIManager : MonoBehaviour
             SetBlowFaceOff(blowFace);
         }
     }
-    private void SetBlowFacesRed()
+    public void SetBlowFacesRed(float duration)
     {
         foreach (GameObject blowFace in blowFaces)
         {
             Image blowImg = blowFace.GetComponent<Image>();
-            blowImg.color = tiredTint;
+            if (blowImg != null)
+            {
+                StartCoroutine(LerpColor(blowImg, tiredTint, duration));
+            }
         }
+    }
+    public void SetBlowFacesBlue()
+    {
+        foreach (GameObject blowFace in blowFaces)
+        {
+            Image blowImg = blowFace.GetComponent<Image>();
+            if (blowImg != null)
+            {
+                Color currentColor = blowImg.color;
+                blowImg.color = new Color(normalTint.r, normalTint.g, normalTint.b, currentColor.a);
+            }
+        }
+    }
+    private IEnumerator LerpColor(Image blowImg, Color targetColor, float duration)
+    {
+        Color startColor = blowImg.color; // Color inicial
+        float timeElapsed = 0f;
+
+        while (timeElapsed < duration)
+        {
+            timeElapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(timeElapsed / duration); // Normalización del tiempo
+
+            // Interpolación entre el color inicial y el objetivo, manteniendo el alfa
+            blowImg.color = new Color(
+                Mathf.Lerp(startColor.r, targetColor.r, t),
+                Mathf.Lerp(startColor.g, targetColor.g, t),
+                Mathf.Lerp(startColor.b, targetColor.b, t),
+                startColor.a // Mantiene el valor original del alfa
+            );
+
+            yield return null; // Espera al siguiente frame
+        }
+
+        // Asegúrate de que termine exactamente con el color objetivo
+        blowImg.color = new Color(targetColor.r, targetColor.g, targetColor.b, startColor.a);
     }
     private Color SetAlpha(Color color, float alpha)
     {

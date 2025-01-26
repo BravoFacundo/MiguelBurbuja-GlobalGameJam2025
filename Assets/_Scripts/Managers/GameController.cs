@@ -43,7 +43,7 @@ public class GameController : MonoBehaviour
     {
         //Debug.Log("Reached Goal, loading next level");
         currentLevel++;
-        maxLevelReached++;
+        maxLevelReached++; Math.Clamp(maxLevelReached, 1, levelPrefabs.Count-1);
         if (maxLevelReached > levelPrefabs.Count) GameManager.SetGameState(GameState.WinScreen);
         else GameManager.SetGameState(GameState.NextLevelScreen);
     }

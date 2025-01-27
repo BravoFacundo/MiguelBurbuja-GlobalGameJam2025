@@ -8,20 +8,25 @@ public class GameController : MonoBehaviour
 {
     private readonly string filePath = Application.dataPath + "/PlayerDataFile.json";
 
+    [Header("Data")]
     public int maxLevelReached = 1;
     public int currentLevel = 1;
 
-    private Transform grid;
-
+    [Header("References")]
     [SerializeField] GameManager gameManager;
+
+    [Header("Local References")]
     public PlayerController player;
+    [SerializeField] private Transform grid;
+
+    [Header("Levels")]    
     [SerializeField] List<GameObject> levelPrefabs;
 
 
     private void Awake()
     {
         grid = transform.Find("Grid");
-        player = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
+        //player = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
 
         PlayerData playerData = LoadFromJson();
         maxLevelReached = playerData.maxLevelReached;
@@ -36,8 +41,11 @@ public class GameController : MonoBehaviour
     public void LoadNextLevel()
     {
         Utilities.DeleteAllChildrens(grid);
+        Debug.Log($"Loading level {maxLevelReached}");
+        if (maxLevelReached > levelPrefabs.Count) maxLevelReached = 1;
         GameObject newLevel = Instantiate(levelPrefabs[maxLevelReached - 1], grid);
     }
+  
 
     public void ReachedGoal()
     {
@@ -46,8 +54,10 @@ public class GameController : MonoBehaviour
         if (maxLevelReached > levelPrefabs.Count) gameManager.SetGameState(GameState.WinScreen);
         else gameManager.SetGameState(GameState.NextLevelScreen);
     }
-    public void PlayerDie()
+    public void PlayerDie() => StartCoroutine(DelayedPlayerDie());
+    private IEnumerator DelayedPlayerDie()
     {
+        yield return new WaitForSeconds(.75f);
         gameManager.SetGameState(GameState.LoseScreen);
     }
 

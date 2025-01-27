@@ -7,23 +7,21 @@ public class PlayerController : MonoBehaviour
 {
     [Header("Configuration")]
     [SerializeField] float blowForce = 0.1f;
+    [SerializeField] float blowCooldown = 0.5f;
     [SerializeField] float blowStamina = 250;
     [SerializeField] float blowCost = 100;
     [SerializeField] float staminaRecoveryRate = 1;
+    private bool canBlow = true;
     float maxStamina;
+
 
     [Header("Random Force")]
     float minInterval = 0.3f;
     float maxInterval = 1.0f;
     private float nextForceTime;
 
-    [Header("Music")]
-    [SerializeField] float detectionRadius = 5f;
-    [SerializeField] LayerMask colliderLayer;
-
     [Header("Sounds")]
     [SerializeField] AudioClip popSFX;
-    [SerializeField] AudioClip inhalerSFX;
 
     [Header("References")]
     [SerializeField] private GameController gameController;
@@ -37,7 +35,6 @@ public class PlayerController : MonoBehaviour
         uiManager = GameObject.FindGameObjectWithTag("Manager").GetComponentInChildren<UIManager>();
         gameController = GameObject.FindWithTag("GameController").GetComponent<GameController>();
         rb = GetComponent<Rigidbody2D>();
-
     }
     private void Start()
     {
@@ -51,20 +48,11 @@ public class PlayerController : MonoBehaviour
 
         Handle_RandomForce();
         Handle_BlowStamina();
-
-        if (IsNearCollider())
-        {
-            Debug.Log("¡Hay un collider cercano!");
-        }
-        else
-        {
-            Debug.Log("No hay colliders cercanos.");
-        }
     }
 
     private void Handle_Inputs()
     {
-        if (blowStamina >= blowCost)
+        if (blowStamina >= blowCost && canBlow)
         {
             if (Input.GetKeyDown(KeyCode.LeftArrow))
                 Blow(Vector2.left);
@@ -78,6 +66,8 @@ public class PlayerController : MonoBehaviour
     }
     void Blow(Vector2 dir)
     {
+        StartCoroutine(nameof(BlowCooldown));
+        
         rb.AddForce(dir * blowForce, ForceMode2D.Impulse);
         uiManager.SetBlowFacesBlue();
         blowStamina -= blowCost;
@@ -85,6 +75,12 @@ public class PlayerController : MonoBehaviour
         uiManager.playerPos = transform;
         uiManager.StartCoroutine("SetBlowFace", dir);
         if (blowStamina <= blowCost) uiManager.SetBlowFacesRed(.35f);
+    }
+    private IEnumerator BlowCooldown()
+    {
+        canBlow = false;
+        yield return new WaitForSeconds(blowCooldown);
+        canBlow = true;
     }
 
     private void Handle_RandomForce()
@@ -101,8 +97,7 @@ public class PlayerController : MonoBehaviour
 
     private void Handle_BlowStamina()
     {
-        blowStamina += staminaRecoveryRate;
-        Mathf.Clamp(blowStamina, 0, maxStamina);
+        if (blowStamina <= maxStamina) blowStamina += staminaRecoveryRate;
         uiManager.SetBlowBarValue(blowStamina);
     }
 
@@ -115,18 +110,12 @@ public class PlayerController : MonoBehaviour
     }
     private IEnumerator DelayedDeath()
     {
+        gameController.PlayerDie();
         rb.constraints = RigidbodyConstraints2D.FreezePosition;
         yield return new WaitForSeconds(.15f);
         Destroy(gameObject);
         Utilities.PlaySoundAndDestroy(popSFX);
         yield return new WaitForSeconds(1f);
-        gameController.PlayerDie();
-    }
-
-    public bool IsNearCollider()
-    {
-        Collider[] nearbyColliders = Physics.OverlapSphere(transform.position, detectionRadius, colliderLayer);
-        return nearbyColliders.Length > 0; // Si hay al menos uno, estás cerca
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

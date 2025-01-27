@@ -19,7 +19,7 @@ public class MusicManager : MonoBehaviour
             source.clip = musicClips[i];
             source.loop = true;
             source.playOnAwake = false;
-            source.volume = (i == 0) ? .2f : 0f;
+            source.volume = .5f;
             source.Play();
             audioSources.Add(source);
         }
@@ -55,7 +55,7 @@ public class MusicManager : MonoBehaviour
             yield return null; // Esperar un frame
         }
 
-        // Asegurarse de que los volúmenes estén correctamente ajustados al finalizar
+        // Asegurarse de que los volï¿½menes estï¿½n correctamente ajustados al finalizar
         activeSource.volume = 0f;
         targetSource.volume = 1f;
 

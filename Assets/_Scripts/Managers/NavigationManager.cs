@@ -97,13 +97,21 @@ public class NavigationManager : MonoBehaviour
     {
         Utilities.PlaySoundAndDestroy(buttonSFX);
         yield return new WaitForSeconds(pressDelay);
-
         if (gameManager.currentGameState == GameState.LoreScreen)
             gameManager.SetGameState(GameState.TutorialScreen);
+        else if (gameManager.currentGameState == GameState.TutorialScreen)
+            gameManager.SetGameState(GameState.Game);
         else if (gameManager.currentGameState == GameState.WinScreen || gameManager.currentGameState == GameState.LoseScreen)
             gameManager.SetGameState(GameState.Menu);
-        else gameManager.SetGameState(GameState.Game);
 
+        else gameManager.SetGameState(GameState.Game);
+    }
+    public void Button_Next() => StartCoroutine(nameof(Delayed_Next));
+    public IEnumerator Delayed_Next()
+    {
+        Utilities.PlaySoundAndDestroy(buttonSFX);
+        yield return new WaitForSeconds(pressDelay);
+        gameManager.SetGameState(GameState.Game);
     }
 
     public void Button_Exit() => StartCoroutine(nameof(Delayed_Exit));

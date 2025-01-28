@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3612830589369997387}
   m_Layer: 0
   m_Name: Fan
-  m_TagString: Untagged
+  m_TagString: Wind
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -144,7 +144,7 @@ GameObject:
   - component: {fileID: 147814875678255279}
   m_Layer: 0
   m_Name: Area
-  m_TagString: Untagged
+  m_TagString: Wind
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

@@ -25,10 +25,10 @@ public class NavigationManager : MonoBehaviour
     void Awake()
     {
         gameManager = transform.parent.GetComponentInChildren<GameManager>();
-
         GetScreens();
     }
 
+    // Método para verificar el progreso previo del jugador
     public void CheckPreviousPlay(int maxLevelReached)
     {
         TMP_Text playButtonText = playButton.GetComponentInChildren<TMP_Text>();
@@ -45,6 +45,7 @@ public class NavigationManager : MonoBehaviour
         }
     }
 
+    // Método para obtener todas las pantallas y desactivarlas
     public void GetScreens()
     {
         foreach (Transform child in canvas.transform)
@@ -53,7 +54,11 @@ public class NavigationManager : MonoBehaviour
             child.gameObject.SetActive(false);
         }
     }
+
+    // Método para activar una pantalla específica
     public void SetScreen(int index) => screens[index].SetActive(true);
+
+    // Método para desactivar todas las pantallas
     public void DisableAllScreens()
     {
         foreach (GameObject screen in screens)
@@ -62,6 +67,7 @@ public class NavigationManager : MonoBehaviour
         }
     }
 
+    // Métodos para manejar los botones con retraso
     public void Button_Play() => StartCoroutine(nameof(Delayed_Play));
     public IEnumerator Delayed_Play()
     {
@@ -69,6 +75,7 @@ public class NavigationManager : MonoBehaviour
         yield return new WaitForSeconds(pressDelay);
         gameManager.SetGameState(GameState.LoreScreen);
     }
+
     public void Button_LevelSelector() => StartCoroutine(nameof(Delayed_LevelSelector));
     public IEnumerator Delayed_LevelSelector()
     {
@@ -76,6 +83,7 @@ public class NavigationManager : MonoBehaviour
         yield return new WaitForSeconds(pressDelay);
         gameManager.SetGameState(GameState.LevelSelector);
     }
+
     public void Button_Credits() => StartCoroutine(nameof(Delayed_Credits));
     public IEnumerator Delayed_Credits()
     {
@@ -83,6 +91,7 @@ public class NavigationManager : MonoBehaviour
         yield return new WaitForSeconds(pressDelay);
         gameManager.SetGameState(GameState.CreditsScreen);
     }
+
     public void Button_Back() => StartCoroutine(nameof(Delayed_Back));
     public IEnumerator Delayed_Back()
     {
@@ -92,6 +101,7 @@ public class NavigationManager : MonoBehaviour
             gameManager.SetGameState(GameState.LoreScreen);
         else gameManager.SetGameState(GameState.Menu);
     }
+
     public void Button_Continue() => StartCoroutine(nameof(Delayed_Continue));
     public IEnumerator Delayed_Continue()
     {
@@ -103,9 +113,9 @@ public class NavigationManager : MonoBehaviour
             gameManager.SetGameState(GameState.Game);
         else if (gameManager.currentGameState == GameState.WinScreen || gameManager.currentGameState == GameState.LoseScreen)
             gameManager.SetGameState(GameState.Menu);
-
         else gameManager.SetGameState(GameState.Game);
     }
+
     public void Button_Next() => StartCoroutine(nameof(Delayed_Next));
     public IEnumerator Delayed_Next()
     {
@@ -119,9 +129,8 @@ public class NavigationManager : MonoBehaviour
     {
         Utilities.PlaySoundAndDestroy(exitSFX);
         gameManager.SavePlayerProgress();
-        yield return new WaitForSeconds(pressDelay*2);
+        yield return new WaitForSeconds(pressDelay * 2);
         Debug.Log("Exiting Game...");
         Application.Quit();
     }
-
 }

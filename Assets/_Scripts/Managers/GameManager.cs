@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+//diferentes estados del juego?
 public enum GameState
 {
     Menu, 
@@ -16,79 +17,82 @@ public enum GameState
     WinScreen,
     Game
 }
+
 public class GameManager : MonoBehaviour
 {
     [Header("Debug")]
-    public GameState currentGameState;
+    // Estado actual del juego
+    public GameState currentGameState; 
 
     [Header("References")]
-    [SerializeField] GameController gameController;
-    PlayerController player;
+    // Referencia al controlador del juego
+    [SerializeField] GameController gameController; 
+    // Referencia al controlador del jugador
+    PlayerController player; 
     
-    private NavigationManager navigationManager;
-    private UIManager uiManager;
+    // Referencia al gestor de navegación
+    private NavigationManager navigationManager; 
+    // Referencia al gestor de la interfaz de usuario
+    private UIManager uiManager; 
+
+    // Diccionario para mapear estados del juego a índices de pantallas
+    private Dictionary<GameState, int> gameStateToScreenIndex;
 
     private void Awake()
     {
+        // Obtener referencias a los gestores de navegación e interfaz de usuario
         Transform parentObj = transform.parent;
         navigationManager = parentObj.GetComponentInChildren<NavigationManager>();
         uiManager = parentObj.GetComponentInChildren<UIManager>();
+
+        // Inicializar el diccionario
+        gameStateToScreenIndex = new Dictionary<GameState, int>
+        {
+            { GameState.Menu, 0 },
+            { GameState.LevelSelector, 1 },
+            { GameState.LoreScreen, 2 },
+            { GameState.TutorialScreen, 3 },
+            { GameState.CreditsScreen, 4 },
+            { GameState.ConfigurationScreen, 5 },
+            { GameState.PauseScreen, 6 },
+            { GameState.LoseScreen, 7 },
+            { GameState.NextLevelScreen, 8 },
+            { GameState.WinScreen, 9 },
+            { GameState.Game, 10 }
+        };
     }
 
     private void Start()
     {
+        // Inicializar el controlador del jugador y establecer el estado inicial del juego
         player = gameController.player;
         SetGameState(currentGameState);
     }
 
+    // Método para establecer el estado del juego
     public void SetGameState(GameState gameState)
     {
         currentGameState = gameState;
-        
         navigationManager.DisableAllScreens();
-        switch (gameState)
-        {
-            case GameState.Menu:
-                gameController.gameObject.SetActive(false);
-                navigationManager.SetScreen(0);
-                navigationManager.CheckPreviousPlay(gameController.maxLevelReached);
-                break;
-            case GameState.LevelSelector:
-                navigationManager.SetScreen(1);
-                break;
-            case GameState.LoreScreen:
-                navigationManager.SetScreen(2);
-                break;
-            case GameState.TutorialScreen:
-                navigationManager.SetScreen(3);
-                break;
-            case GameState.CreditsScreen:
-                navigationManager.SetScreen(4);
-                break;
-            case GameState.ConfigurationScreen:
-                navigationManager.SetScreen(5);
-                break;
-            case GameState.PauseScreen:
-                navigationManager.SetScreen(6);
-                break;
-            case GameState.LoseScreen:
-                navigationManager.SetScreen(7);
-                break;
-            case GameState.NextLevelScreen:
-                navigationManager.SetScreen(8);
-                break;
-            case GameState.WinScreen:
-                navigationManager.SetScreen(9);
-                break;
 
-            case GameState.Game:
-                gameController.gameObject.SetActive(true);
-                navigationManager.SetScreen(10);
-                gameController.LoadNextLevel();
-                break;
+        if (gameState == GameState.Menu)
+        {
+            gameController.gameObject.SetActive(false);
+            navigationManager.CheckPreviousPlay(gameController.maxLevelReached);
+        }
+        else if (gameState == GameState.Game)
+        {
+            gameController.gameObject.SetActive(true);
+            gameController.LoadNextLevel();
+        }
+
+        // Activar la pantalla correspondiente según el estado del juego
+        if (gameStateToScreenIndex.TryGetValue(gameState, out int screenIndex))
+        {
+            navigationManager.SetScreen(screenIndex);
         }
     }
 
+    // Método para guardar el progreso del jugador
     public void SavePlayerProgress() => gameController.SavePlayerProgress();
-
 }

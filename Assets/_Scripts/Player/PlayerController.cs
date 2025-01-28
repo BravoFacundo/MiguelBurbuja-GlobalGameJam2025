@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
+    //soy re gato
     [Header("Configuration")]
     [SerializeField] float blowForce = 0.1f;
     [SerializeField] float blowCooldown = 0.5f;

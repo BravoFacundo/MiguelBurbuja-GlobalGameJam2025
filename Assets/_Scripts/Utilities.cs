@@ -23,4 +23,12 @@ public class Utilities : MonoBehaviour
             Object.Destroy(child.gameObject);
         }
     }
+
+    public static void DeactivateAllChildrens(Transform parent)
+    {
+        foreach (Transform child in parent)
+        {
+            child.gameObject.SetActive(false);
+        }
+    }
 }

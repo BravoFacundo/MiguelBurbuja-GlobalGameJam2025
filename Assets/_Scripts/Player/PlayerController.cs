@@ -32,7 +32,7 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
-        uiManager = GameObject.FindGameObjectWithTag("Manager").GetComponentInChildren<UIManager>();
+        uiManager = GameObject.FindGameObjectWithTag("Managers").GetComponentInChildren<UIManager>();
         gameController = GameObject.FindWithTag("GameController").GetComponent<GameController>();
         rb = GetComponent<Rigidbody2D>();
     }

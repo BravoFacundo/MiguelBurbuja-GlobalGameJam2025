@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Linq;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using UnityEngine;
@@ -7,28 +8,31 @@ using TMPro;
 
 public class NavigationManager : MonoBehaviour
 {
-    GameManager gameManager;
-
     [Header("Screens")]
-    [SerializeField] Canvas canvas;
     [SerializeField] private List<GameObject> screens = new();
+    Canvas canvas;
 
     [Header("Buttons")]
     [SerializeField] float pressDelay = 1f;
     [SerializeField] AudioClip buttonSFX;
-    [SerializeField] AudioClip exitSFX;
-
-    [Header("References")]
+    [SerializeField] AudioClip exitSFX;    
+    
+    [Header("Button References")]
     [SerializeField] Button playButton;
     [SerializeField] Button continueButton;
+
+    [Header("References")]
+    GameManager gameManager;
 
     void Awake()
     {
         gameManager = transform.parent.GetComponentInChildren<GameManager>();
-        GetScreens();
+        canvas = GameObject.FindGameObjectWithTag("Canvas").GetComponent<Canvas>();
+
+        GetAllScreens();
     }
 
-    // Método para verificar el progreso previo del jugador
+    // Método para verificar el progreso previo del jugador // Esto puede no tener que ir aca, esto hace un ajuste en la UI, quizas es mas del ui manager, o quizas hay que combinar los dos.
     public void CheckPreviousPlay(int maxLevelReached)
     {
         TMP_Text playButtonText = playButton.GetComponentInChildren<TMP_Text>();
@@ -45,29 +49,21 @@ public class NavigationManager : MonoBehaviour
         }
     }
 
-    // Método para obtener todas las pantallas y desactivarlas
-    public void GetScreens()
+    //---------- SCREENS ------------------------------------------------------------------------------------------------------------------
+
+    public void GetAllScreens()
     {
-        foreach (Transform child in canvas.transform)
-        {
-            screens.Add(child.gameObject);
-            child.gameObject.SetActive(false);
-        }
+        screens = canvas.transform.Cast<Transform>().Select(child => child.gameObject).ToList();
+        Utilities.DeactivateAllChildrens(canvas.transform);
     }
-
-    // Método para activar una pantalla específica
-    public void SetScreen(int index) => screens[index].SetActive(true);
-
-    // Método para desactivar todas las pantallas
     public void DisableAllScreens()
     {
-        foreach (GameObject screen in screens)
-        {
-            screen.SetActive(false);
-        }
+        foreach (GameObject screen in screens) { screen.SetActive(false); }
     }
+    public void SetScreen(int index) => screens[index].SetActive(true);
 
-    // Métodos para manejar los botones con retraso
+    //---------- BUTTONS ------------------------------------------------------------------------------------------------------------------
+    
     public void Button_Play() => StartCoroutine(nameof(Delayed_Play));
     public IEnumerator Delayed_Play()
     {
@@ -91,7 +87,6 @@ public class NavigationManager : MonoBehaviour
         yield return new WaitForSeconds(pressDelay);
         gameManager.SetGameState(GameState.CreditsScreen);
     }
-
     public void Button_Back() => StartCoroutine(nameof(Delayed_Back));
     public IEnumerator Delayed_Back()
     {
@@ -127,10 +122,11 @@ public class NavigationManager : MonoBehaviour
     public void Button_Exit() => StartCoroutine(nameof(Delayed_Exit));
     public IEnumerator Delayed_Exit()
     {
-        Utilities.PlaySoundAndDestroy(exitSFX);
         gameManager.SavePlayerProgress();
+        Utilities.PlaySoundAndDestroy(exitSFX);
         yield return new WaitForSeconds(pressDelay * 2);
         Debug.Log("Exiting Game...");
         Application.Quit();
     }
+
 }

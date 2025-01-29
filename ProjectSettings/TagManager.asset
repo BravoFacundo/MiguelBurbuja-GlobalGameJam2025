@@ -5,9 +5,10 @@ TagManager:
   serializedVersion: 2
   tags:
   - Goal
-  - Manager
   - PowerUp
   - Wind
+  - Managers
+  - Canvas
   layers:
   - Default
   - TransparentFX

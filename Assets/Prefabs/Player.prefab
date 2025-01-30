@@ -137,9 +137,16 @@ MonoBehaviour:
   blowStamina: 250
   blowCost: 100
   staminaRecoveryRate: 1
+  collisionLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  wallDetectionDistance: 1
+  isCloseToWall: 0
+  lastCloseToWallValue: 0
   popSFX: {fileID: 8300000, guid: f1087b07f2238ed4cb2136ff419d407a, type: 3}
   gameController: {fileID: 0}
   uiManager: {fileID: 0}
+  musicManager: {fileID: 0}
 --- !u!58 &8300149969560397254
 CircleCollider2D:
   m_ObjectHideFlags: 0

@@ -41,7 +41,7 @@ public class GameController : MonoBehaviour
     public void LoadNextLevel()
     {
         Utilities.DeleteAllChildrens(grid);
-        Debug.Log($"Loading level {maxLevelReached}");
+        //Debug.Log($"Loading level {maxLevelReached}");
         if (maxLevelReached > levelPrefabs.Count) maxLevelReached = 1;
         GameObject newLevel = Instantiate(levelPrefabs[maxLevelReached - 1], grid);
     }

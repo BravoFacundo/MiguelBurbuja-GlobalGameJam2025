@@ -14,11 +14,16 @@ public class PlayerController : MonoBehaviour
     private bool canBlow = true;
     float maxStamina;
 
-
     [Header("Random Force")]
     float minInterval = 0.3f;
     float maxInterval = 1.0f;
     private float nextForceTime;
+
+    [Header("Collision")]
+    [SerializeField] LayerMask collisionLayer;
+    [SerializeField] float wallDetectionDistance = 1f;
+    [SerializeField] bool isCloseToWall;
+    [SerializeField] bool lastCloseToWallValue;
 
     [Header("Sounds")]
     [SerializeField] AudioClip popSFX;
@@ -26,19 +31,25 @@ public class PlayerController : MonoBehaviour
     [Header("References")]
     [SerializeField] private GameController gameController;
     [SerializeField] private UIManager uiManager;
+    [SerializeField] private MusicManager musicManager;
 
     [Header("Local References")]
     private Rigidbody2D rb;
 
     private void Awake()
     {
-        uiManager = GameObject.FindGameObjectWithTag("Managers").GetComponentInChildren<UIManager>();
+        GameObject managers = GameObject.FindGameObjectWithTag("Managers");
+        uiManager = managers.GetComponentInChildren<UIManager>();
+        musicManager = managers.GetComponentInChildren<MusicManager>();
+        
         gameController = GameObject.FindWithTag("GameController").GetComponent<GameController>();
         rb = GetComponent<Rigidbody2D>();
     }
     private void Start()
     {
+        lastCloseToWallValue = isCloseToWall;
         maxStamina = blowStamina;
+        
         uiManager.SetBlowBarDefaultValue(maxStamina);
     }
 
@@ -48,6 +59,7 @@ public class PlayerController : MonoBehaviour
 
         Handle_RandomForce();
         Handle_BlowStamina();
+        Handle_Collision();
     }
 
     private void Handle_Inputs()
@@ -94,21 +106,22 @@ public class PlayerController : MonoBehaviour
             nextForceTime = Random.Range(minInterval, maxInterval);
         }
     }
+    private void Handle_Collision()
+    {
+        bool prevState = isCloseToWall;
+        isCloseToWall = Physics2D.OverlapCircle(transform.position, wallDetectionDistance, collisionLayer) != null;
+        if (prevState == isCloseToWall) return;
 
+        if (isCloseToWall) musicManager.AddMusicTrack();
+        else musicManager.SubstractMusicTrack();
+    }
     private void Handle_BlowStamina()
     {
         if (blowStamina <= maxStamina) blowStamina += staminaRecoveryRate;
         uiManager.SetBlowBarValue(blowStamina);
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (collision.gameObject.layer == LayerMask.NameToLayer("Colliders"))
-        {
-            StartCoroutine(nameof(DelayedDeath));
-        }
-    }
-    private IEnumerator DelayedDeath()
+    private IEnumerator Player_Die()
     {
         gameController.PlayerDie();
         rb.constraints = RigidbodyConstraints2D.FreezePosition;
@@ -118,25 +131,15 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(1f);
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.CompareTag("Goal"))
-        {
-            StartCoroutine(nameof(DelayedGoal));
-        }
-        else if (collision.CompareTag("PowerUp"))
-        {
-            StartCoroutine(nameof(DelayedPowerUp), collision.transform.parent.gameObject);
-        }
-    }
-    private IEnumerator DelayedGoal()
+    private IEnumerator Player_Win()
     {
         yield return new WaitForSeconds(.25f);
         Utilities.PlaySoundAndDestroy(popSFX);
         rb.constraints = RigidbodyConstraints2D.FreezePosition;
         gameController.ReachedGoal();
     }
-    private IEnumerator DelayedPowerUp(GameObject inhaler)
+
+    private IEnumerator Player_Recharge(GameObject inhaler)
     {
         yield return new WaitForSeconds(.25f);
         blowStamina = maxStamina;
@@ -144,6 +147,23 @@ public class PlayerController : MonoBehaviour
         Destroy(inhaler);
     }
 
+    //---------- COLLISIONS ------------------------------------------------------------------------------------------------------------------
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.layer == LayerMask.NameToLayer("Colliders"))
+        {
+            StartCoroutine(nameof(Player_Die));
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Goal")) 
+            { StartCoroutine(nameof(Player_Win)); }
+        else if (collision.CompareTag("PowerUp")) 
+            { StartCoroutine(nameof(Player_Recharge), collision.transform.parent.gameObject); }
+    }
     private void OnTriggerStay2D(Collider2D collision)
     {
         if (collision.CompareTag("Wind"))

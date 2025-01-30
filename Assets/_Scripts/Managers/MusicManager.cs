@@ -4,22 +4,27 @@ using UnityEngine;
 
 public class MusicManager : MonoBehaviour
 {
-    public List<AudioClip> musicClips;
-    private List<AudioSource> audioSources;
-    private int currentTrackIndex = 0;
-    public float transitionDuration = 1f;
+    [Header("Debug")]
+    [SerializeField] int currentTrackIndex = 1;
+    
+    [Header("Configuration")]
+    [SerializeField] float transitionDuration = 0.25f;
 
-    private void Start()
+    [Header("Music Tracks")]
+    public List<AudioClip> musicTracks;
+    private List<AudioSource> audioSources;
+
+    private void Awake()
     {
         audioSources = new List<AudioSource>();
 
-        for (int i = 0; i < musicClips.Count; i++)
+        for (int i = 0; i < musicTracks.Count; i++)
         {
             AudioSource source = gameObject.AddComponent<AudioSource>();
-            source.clip = musicClips[i];
+            source.clip = musicTracks[i];
             source.loop = true;
             source.playOnAwake = false;
-            source.volume = .5f;
+            source.volume = (i == currentTrackIndex) ? 0.5f : 0f;
             source.Play();
             audioSources.Add(source);
         }
@@ -32,11 +37,10 @@ public class MusicManager : MonoBehaviour
             Debug.LogWarning("Invalid track index or already playing this track.");
             return;
         }
-
         StartCoroutine(TransitionRoutine(newTrackIndex));
     }
 
-    private System.Collections.IEnumerator TransitionRoutine(int newTrackIndex)
+    private IEnumerator TransitionRoutine(int newTrackIndex)
     {
         float timer = 0f;
         AudioSource activeSource = audioSources[currentTrackIndex];
@@ -47,18 +51,29 @@ public class MusicManager : MonoBehaviour
             timer += Time.deltaTime;
             float progress = timer / transitionDuration;
 
-            // Reducir el volumen de la pista activa
             activeSource.volume = Mathf.Lerp(1f, 0f, progress);
-            // Aumentar el volumen de la pista objetivo
             targetSource.volume = Mathf.Lerp(0f, 1f, progress);
 
-            yield return null; // Esperar un frame
+            yield return null;
         }
-
-        // Asegurarse de que los vol�menes est�n correctamente ajustados al finalizar
         activeSource.volume = 0f;
         targetSource.volume = 1f;
 
         currentTrackIndex = newTrackIndex;
+    }
+
+    public void SetMusicTrack(int index)
+    {
+        currentTrackIndex = index;
+        TransitionToTrack(index);
+        Debug.Log(currentTrackIndex);
+    }
+    public void AddMusicTrack()
+    {
+        TransitionToTrack(currentTrackIndex++);
+    }
+    public void SubstractMusicTrack()
+    {
+        TransitionToTrack(currentTrackIndex--);
     }
 }

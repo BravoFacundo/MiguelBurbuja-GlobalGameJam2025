@@ -27,6 +27,7 @@ public class GameManager : MonoBehaviour
     [Header("References")]
     [SerializeField] GameController gameController;
     [SerializeField] NavigationManager navigationManager;
+    [SerializeField] MusicManager musicManager;
 
     private void Awake()
     {
@@ -59,11 +60,13 @@ public class GameManager : MonoBehaviour
         {
             gameController.gameObject.SetActive(false);
             navigationManager.CheckPreviousPlay(gameController.maxLevelReached);
+            musicManager.SetMusicTrack(0);
         }
         else if (gameState == GameState.Game)
         {
             gameController.gameObject.SetActive(true);
             gameController.LoadNextLevel();
+            musicManager.SetMusicTrack(1);
         }
 
         if (gameStateToScreenIndex.TryGetValue(gameState, out int screenIndex))

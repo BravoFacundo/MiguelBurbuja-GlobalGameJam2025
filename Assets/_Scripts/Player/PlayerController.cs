@@ -38,9 +38,9 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
-        GameObject managers = GameObject.FindGameObjectWithTag("Managers");
-        uiManager = managers.GetComponentInChildren<UIManager>();
-        musicManager = managers.GetComponentInChildren<MusicManager>();
+        GameObject manager = GameObject.FindGameObjectWithTag("Managers");
+        uiManager = manager.GetComponentInChildren<UIManager>();
+        musicManager = manager.GetComponentInChildren<MusicManager>();
         
         gameController = GameObject.FindWithTag("GameController").GetComponent<GameController>();
         rb = GetComponent<Rigidbody2D>();

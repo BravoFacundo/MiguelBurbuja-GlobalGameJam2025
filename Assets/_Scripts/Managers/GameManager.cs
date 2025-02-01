@@ -26,7 +26,10 @@ public class GameManager : MonoBehaviour
 
     [Header("References")]
     [SerializeField] GameController gameController;
+    
+    [Header("Local References")]
     [SerializeField] NavigationManager navigationManager;
+    [SerializeField] UIManager uiManager;
     [SerializeField] MusicManager musicManager;
 
     private void Awake()

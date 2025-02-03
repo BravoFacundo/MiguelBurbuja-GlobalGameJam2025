@@ -15,14 +15,31 @@ public class LevelManager : MonoBehaviour
 
     [Header("Local References")]
     public PlayerController player;
-    [SerializeField] private Transform grid;
+    [SerializeField] Transform playerPos;
+    [SerializeField] Vector3 PlayerPool;
+    [SerializeField] Transform grid;
 
     [Header("Levels")]    
     [SerializeField] List<GameObject> levelPrefabs;
 
     private void Awake()
     {
-        grid = transform.Find("Grid");
+        playerPos = player.transform;
+        SendPlayerToPool();
+    }
+
+    public void SendPlayerToPool()
+    {
+        player.canMove = false;
+        playerPos.position = PlayerPool;
+    }
+    private IEnumerator SendPlayerToGrid()
+    {
+        yield return new WaitForSeconds(1f);
+        Transform playerPivot = grid.Find(grid.GetChild(0).name + "/PlayerPivot");
+        playerPos.position = playerPivot.position;
+        Destroy(playerPivot.gameObject);
+        player.canMove = true;
     }
 
     public void LoadNextLevel()
@@ -30,10 +47,12 @@ public class LevelManager : MonoBehaviour
         Utilities.DeleteAllChildrens(grid);
         if (maxLevelReached > levelPrefabs.Count) maxLevelReached = 1;
         GameObject newLevel = Instantiate(levelPrefabs[maxLevelReached - 1], grid);
+        StartCoroutine(SendPlayerToGrid());
     }
 
     public void PlayerReachedGoal()
     {
+        SendPlayerToPool();
         currentLevel++;
         maxLevelReached = Mathf.Clamp(maxLevelReached + 1, 1, levelPrefabs.Count);
         if (maxLevelReached > levelPrefabs.Count) gameManager.SetGameState(GameState.WinScreen);

@@ -9,6 +9,8 @@ TagManager:
   - Wind
   - Managers
   - Canvas
+  - Levels
+  - Pivot
   layers:
   - Default
   - TransparentFX

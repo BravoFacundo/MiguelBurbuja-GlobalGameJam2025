@@ -114,7 +114,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -5, y: 0, z: 0}
-  m_LocalScale: {x: 1.5, y: 1.5, z: 2.6315792}
+  m_LocalScale: {x: 0.6, y: 0.6, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 947706670884895680}
@@ -132,6 +132,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 41c30431167ba9f40ac1e98a91680d32, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  canMove: 0
   blowForce: 0.1
   blowCooldown: 0.5
   blowStamina: 250
@@ -144,7 +145,7 @@ MonoBehaviour:
   isCloseToWall: 0
   lastCloseToWallValue: 0
   popSFX: {fileID: 8300000, guid: f1087b07f2238ed4cb2136ff419d407a, type: 3}
-  gameController: {fileID: 0}
+  levelManager: {fileID: 0}
   uiManager: {fileID: 0}
   musicManager: {fileID: 0}
 --- !u!58 &8300149969560397254

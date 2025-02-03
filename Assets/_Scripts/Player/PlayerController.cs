@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class PlayerController : MonoBehaviour
 {
     [Header("Configuration")]
+    public bool canMove;
     [SerializeField] float blowForce = 0.1f;
     [SerializeField] float blowCooldown = 0.5f;
     [SerializeField] float blowStamina = 250;
@@ -42,7 +43,7 @@ public class PlayerController : MonoBehaviour
         uiManager = manager.GetComponentInChildren<UIManager>();
         musicManager = manager.GetComponentInChildren<MusicManager>();
         
-        levelManager = GameObject.FindWithTag("GameController").GetComponent<LevelManager>();
+        levelManager = GameObject.FindWithTag("Levels").GetComponent<LevelManager>();
         rb = GetComponent<Rigidbody2D>();
     }
     private void Start()
@@ -55,13 +56,26 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        Handle_Inputs();
-
-        Handle_RandomForce();
+        if (canMove)
+        {
+            Handle_RandomForce();
+            Handle_Inputs();
+        }
         Handle_BlowStamina();
         Handle_Collision();
     }
 
+    private void Handle_RandomForce()
+    {
+        nextForceTime -= Time.deltaTime;
+        if (nextForceTime <= 0f)
+        {
+            Vector2 randomDirection = new Vector2(Random.Range(-1f, 1f), Random.Range(-1f, 1f)).normalized;
+            rb.AddForce(.1f * blowForce * randomDirection, ForceMode2D.Impulse);
+
+            nextForceTime = Random.Range(minInterval, maxInterval);
+        }
+    }
     private void Handle_Inputs()
     {
         if (blowStamina >= blowCost && canBlow)
@@ -76,6 +90,21 @@ public class PlayerController : MonoBehaviour
                 Blow(Vector2.down);
         }
     }
+    private void Handle_Collision()
+    {
+        bool prevState = isCloseToWall;
+        isCloseToWall = Physics2D.OverlapCircle(transform.position, wallDetectionDistance, collisionLayer) != null;
+        if (prevState == isCloseToWall) return;
+
+        if (isCloseToWall) musicManager.AddMusicTrack();
+        else musicManager.SubstractMusicTrack();
+    }
+    private void Handle_BlowStamina()
+    {
+        if (blowStamina <= maxStamina) blowStamina += staminaRecoveryRate;
+        uiManager.SetBlowBarValue(blowStamina);
+    }
+
     void Blow(Vector2 dir)
     {
         StartCoroutine(nameof(BlowCooldown));
@@ -95,32 +124,6 @@ public class PlayerController : MonoBehaviour
         canBlow = true;
     }
 
-    private void Handle_RandomForce()
-    {
-        nextForceTime -= Time.deltaTime;
-        if (nextForceTime <= 0f)
-        {
-            Vector2 randomDirection = new Vector2(Random.Range(-1f, 1f), Random.Range(-1f, 1f)).normalized;
-            rb.AddForce(.1f * blowForce * randomDirection, ForceMode2D.Impulse);
-
-            nextForceTime = Random.Range(minInterval, maxInterval);
-        }
-    }
-    private void Handle_Collision()
-    {
-        bool prevState = isCloseToWall;
-        isCloseToWall = Physics2D.OverlapCircle(transform.position, wallDetectionDistance, collisionLayer) != null;
-        if (prevState == isCloseToWall) return;
-
-        if (isCloseToWall) musicManager.AddMusicTrack();
-        else musicManager.SubstractMusicTrack();
-    }
-    private void Handle_BlowStamina()
-    {
-        if (blowStamina <= maxStamina) blowStamina += staminaRecoveryRate;
-        uiManager.SetBlowBarValue(blowStamina);
-    }
-
     private IEnumerator Player_Die()
     {
         StartCoroutine(levelManager.PlayerDie());
@@ -130,7 +133,6 @@ public class PlayerController : MonoBehaviour
         Utilities.PlaySoundAndDestroy(popSFX);
         yield return new WaitForSeconds(1f);
     }
-
     private IEnumerator Player_Win()
     {
         yield return new WaitForSeconds(.25f);
@@ -138,7 +140,6 @@ public class PlayerController : MonoBehaviour
         rb.constraints = RigidbodyConstraints2D.FreezePosition;
         levelManager.PlayerReachedGoal();
     }
-
     private IEnumerator Player_Recharge(GameObject inhaler)
     {
         yield return new WaitForSeconds(.25f);

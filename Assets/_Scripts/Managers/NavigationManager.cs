@@ -42,8 +42,8 @@ public class NavigationManager : MonoBehaviour
 
     //---------- BUTTONS ------------------------------------------------------------------------------------------------------------------
 
-    private void Delayed_Action(GameState gameState, AudioClip sfx) => 
-        StartCoroutine(Delayed_Action(gameState, pressDelay, sfx));
+    private void Delayed_Action(GameState gameState, AudioClip sfx) 
+        => StartCoroutine(Delayed_Action(gameState, pressDelay, sfx));
     private IEnumerator Delayed_Action(GameState gameState, float delay, AudioClip sfx)
     {
         Utilities.PlaySoundAndDestroy(sfx);
@@ -56,7 +56,7 @@ public class NavigationManager : MonoBehaviour
     public void Button_Credits() => Delayed_Action(GameState.CreditsScreen, buttonSFX);
     public void Button_Next() => Delayed_Action(GameState.Game, buttonSFX);
     public void Button_Retry() => Delayed_Action(GameState.Game, buttonSFX);
-    public void Button_Exit() => StartCoroutine(Delayed_Action(GameState.Game, pressDelay * 2, buttonSFX));
+    public void Button_Exit() => Delayed_Action(GameState.Exit, exitSFX);
     public void Button_Back()
     {
         if (gameManager.currentGameState == GameState.TutorialScreen)

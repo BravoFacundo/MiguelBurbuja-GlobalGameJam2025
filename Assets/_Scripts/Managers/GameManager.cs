@@ -70,12 +70,7 @@ public class GameManager : MonoBehaviour
             gameController.LoadNextLevel();
             musicManager.SetMusicTrack(1);
         }
-        else if (gameState == GameState.Exit)
-        {
-            SavePlayerProgress();
-            Debug.Log("Exiting Game...");
-            Application.Quit();
-        }
+        else if (gameState == GameState.Exit) StartCoroutine(SavePlayerProgress());
 
         if (gameStateToScreenIndex.TryGetValue(gameState, out int screenIndex))
         {
@@ -88,6 +83,13 @@ public class GameManager : MonoBehaviour
         if (maxLevelReached == 1) uiManager.NoPreviousProgress();
         else uiManager.HasPreviousProgress();
     }
-    public void SavePlayerProgress() => gameController.SavePlayerProgress();
+    private IEnumerator SavePlayerProgress()
+    {
+        Debug.Log("Exiting Game... Saving Progress");
+        gameController.SavePlayerProgress(); //Esto tiene que estar aca en realidad
+        yield return new WaitForSeconds(.5f);
+
+        Application.Quit();
+    }
 
 }

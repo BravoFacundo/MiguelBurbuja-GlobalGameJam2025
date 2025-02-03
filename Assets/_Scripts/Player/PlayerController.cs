@@ -29,7 +29,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] AudioClip popSFX;
 
     [Header("References")]
-    [SerializeField] private GameController gameController;
+    [SerializeField] private LevelManager levelManager;
     [SerializeField] private UIManager uiManager;
     [SerializeField] private MusicManager musicManager;
 
@@ -42,7 +42,7 @@ public class PlayerController : MonoBehaviour
         uiManager = manager.GetComponentInChildren<UIManager>();
         musicManager = manager.GetComponentInChildren<MusicManager>();
         
-        gameController = GameObject.FindWithTag("GameController").GetComponent<GameController>();
+        levelManager = GameObject.FindWithTag("GameController").GetComponent<LevelManager>();
         rb = GetComponent<Rigidbody2D>();
     }
     private void Start()
@@ -123,7 +123,7 @@ public class PlayerController : MonoBehaviour
 
     private IEnumerator Player_Die()
     {
-        gameController.PlayerDie();
+        StartCoroutine(levelManager.PlayerDie());
         rb.constraints = RigidbodyConstraints2D.FreezePosition;
         yield return new WaitForSeconds(.15f);
         Destroy(gameObject);
@@ -136,7 +136,7 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(.25f);
         Utilities.PlaySoundAndDestroy(popSFX);
         rb.constraints = RigidbodyConstraints2D.FreezePosition;
-        gameController.ReachedGoal();
+        levelManager.PlayerReachedGoal();
     }
 
     private IEnumerator Player_Recharge(GameObject inhaler)

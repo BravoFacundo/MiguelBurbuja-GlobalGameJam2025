@@ -2,12 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class UIManager : MonoBehaviour
 {
-    GameManager gameManager;
-    [HideInInspector] public Transform playerPos;
-    private float maxStamina;
+    [Header("Debug")]
+    public Transform playerPos;
+    [SerializeField] private float maxStamina;
 
     [Header("Blow")]
     [SerializeField] List<GameObject> blowFaces = new (4);
@@ -17,23 +18,21 @@ public class UIManager : MonoBehaviour
     [SerializeField] AudioClip blowSFX;
     [SerializeField] AudioClip tiredSFX;
 
-    [Header("Bar")]
+    [Header("References")]
     [SerializeField] private Slider blowBar;
+    [SerializeField] TMP_Text playButtonText;
 
     [Header("Resources")]
     [SerializeField] private List<Sprite> spriteFaces = new();
-
-    private void Awake()
-    {
-        Transform parentObj = transform.parent;
-        gameManager = parentObj.GetComponentInChildren<GameManager>();
-    }
 
     private void Start()
     {
         blowBar.value = 1;
         SetBlowFacesOff();
     }
+
+    public void NoPreviousProgress() => playButtonText.text = "Jugar";
+    public void HasPreviousProgress() => playButtonText.text = "Continuar";
 
     public IEnumerator SetBlowFace(Vector2 dir)
     {

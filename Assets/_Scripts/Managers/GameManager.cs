@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public enum GameState
 {
@@ -15,7 +16,8 @@ public enum GameState
     LoseScreen, 
     NextLevelScreen,  
     WinScreen,
-    Game
+    Game,
+    Exit
 }
 
 public class GameManager : MonoBehaviour
@@ -34,10 +36,10 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
-        InitializeDictionar();
+        InitializeDictionary();
     }
 
-    private void InitializeDictionar()
+    private void InitializeDictionary()
     {
         gameStateToScreenIndex = new Dictionary<GameState, int>();
 
@@ -49,10 +51,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void Start()
-    {
-        SetGameState(currentGameState);
-    }
+    private void Start() => SetGameState(currentGameState);
 
     public void SetGameState(GameState gameState)
     {
@@ -62,7 +61,7 @@ public class GameManager : MonoBehaviour
         if (gameState == GameState.Menu)
         {
             gameController.gameObject.SetActive(false);
-            navigationManager.CheckPreviousPlay(gameController.maxLevelReached);
+            CheckPlayerProgress(gameController.maxLevelReached);
             musicManager.SetMusicTrack(0);
         }
         else if (gameState == GameState.Game)
@@ -71,6 +70,12 @@ public class GameManager : MonoBehaviour
             gameController.LoadNextLevel();
             musicManager.SetMusicTrack(1);
         }
+        else if (gameState == GameState.Exit)
+        {
+            SavePlayerProgress();
+            Debug.Log("Exiting Game...");
+            Application.Quit();
+        }
 
         if (gameStateToScreenIndex.TryGetValue(gameState, out int screenIndex))
         {
@@ -78,5 +83,11 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void CheckPlayerProgress(int maxLevelReached)
+    {
+        if (maxLevelReached == 1) uiManager.NoPreviousProgress();
+        else uiManager.HasPreviousProgress();
+    }
     public void SavePlayerProgress() => gameController.SavePlayerProgress();
+
 }

@@ -29,21 +29,37 @@ public class NavigationManager : MonoBehaviour
 
     //---------- SCREENS ------------------------------------------------------------------------------------------------------------------
 
+    /// <summary>
+    /// obtiene todas las pantallas del canvas y las desactiva..
+    /// </summary>
     public void GetAllScreens()
     {
         screens = canvas.transform.Cast<Transform>().Select(child => child.gameObject).ToList();
         Utilities.DeactivateAllChildrens(canvas.transform);
     }
+
+    /// <summary>
+    /// desactiva las pantallas en un for loop ....
+    /// </summary>
     public void DisableAllScreens()
     {
         foreach (GameObject screen in screens) { screen.SetActive(false); }
     }
+
+    /// <summary>
+    /// Activa una pantalla por id.
+    /// </summary>
     public void SetScreen(int index) => screens[index].SetActive(true);
 
     //---------- BUTTONS ------------------------------------------------------------------------------------------------------------------
 
+    /// <summary>
+    /// Delayed action para los botones.
+    /// porque pinga esta 2 veces esto?
+    /// </summary>
     private void Delayed_Action(GameState gameState, AudioClip sfx) 
         => StartCoroutine(Delayed_Action(gameState, pressDelay, sfx));
+
     private IEnumerator Delayed_Action(GameState gameState, float delay, AudioClip sfx)
     {
         Utilities.PlaySoundAndDestroy(sfx);
@@ -51,12 +67,18 @@ public class NavigationManager : MonoBehaviour
         gameManager.SetGameState(gameState);
     }
 
+    // que mierda pasa aca???
     public void Button_Play() => Delayed_Action(GameState.LoreScreen, buttonSFX);
+
     public void Button_LevelSelector() => Delayed_Action(GameState.LevelSelector, buttonSFX);
+  
     public void Button_Credits() => Delayed_Action(GameState.CreditsScreen, buttonSFX);
+    
     public void Button_Next() => Delayed_Action(GameState.Game, buttonSFX);
+
     public void Button_Retry() => Delayed_Action(GameState.Game, buttonSFX);
     public void Button_Exit() => Delayed_Action(GameState.Exit, exitSFX);
+
     public void Button_Back()
     {
         if (gameManager.currentGameState == GameState.TutorialScreen)
@@ -64,6 +86,9 @@ public class NavigationManager : MonoBehaviour
         else Delayed_Action(GameState.Menu, buttonSFX);
     }
 
+    /// <summary>
+    /// distintos comportamientos de continuar
+    /// </summary>
     public void Button_Continue()
     {
         if (gameManager.currentGameState == GameState.LoreScreen)

@@ -51,6 +51,11 @@ public class NavigationManager : MonoBehaviour
     /// </summary>
     public void SetScreen(int index) => screens[index].SetActive(true);
 
+    public int GetScreenIndex(GameState gameState)
+    {
+        return (int)gameState;
+    }
+
     //---------- BUTTONS ------------------------------------------------------------------------------------------------------------------
 
     /// <summary>
@@ -67,18 +72,17 @@ public class NavigationManager : MonoBehaviour
         gameManager.SetGameState(gameState);
     }
 
-    // que mierda pasa aca???
+    //PLAY
     public void Button_Play() => Delayed_Action(GameState.LoreScreen, buttonSFX);
-
+    //LVL SELECTOR 
     public void Button_LevelSelector() => Delayed_Action(GameState.LevelSelector, buttonSFX);
-  
+    //CREDITOS
     public void Button_Credits() => Delayed_Action(GameState.CreditsScreen, buttonSFX);
-    
+    //SIGUIENTE
     public void Button_Next() => Delayed_Action(GameState.Game, buttonSFX);
-
+    //REINTENTAR
     public void Button_Retry() => Delayed_Action(GameState.Game, buttonSFX);
-    public void Button_Exit() => Delayed_Action(GameState.Exit, exitSFX);
-
+    //VOLVER
     public void Button_Back()
     {
         if (gameManager.currentGameState == GameState.TutorialScreen)
@@ -99,5 +103,7 @@ public class NavigationManager : MonoBehaviour
             Delayed_Action(GameState.Menu, buttonSFX);
         else gameManager.SetGameState(GameState.Game);
     }
+    public void Button_Exit() => Delayed_Action(GameState.Exit, exitSFX);
+    
 
 }

@@ -27,7 +27,6 @@ public class GameManager : MonoBehaviour
 
     [Header("Debug")]
     public GameState currentGameState; 
-    private Dictionary<GameState, int> gameStateToScreenIndex;
 
     [Header("References")]
     [SerializeField] LevelManager levelManager;
@@ -39,20 +38,7 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
-        InitializeDictionary();
         LoadPlayerProgress();
-    }
-
-    private void InitializeDictionary()
-    {
-        gameStateToScreenIndex = new Dictionary<GameState, int>();
-
-        int index = 0;
-        foreach (GameState state in Enum.GetValues(typeof(GameState)))
-        {
-            gameStateToScreenIndex[state] = index;
-            index++;
-        }
     }
 
     private void Start() => SetGameState(currentGameState);
@@ -76,10 +62,8 @@ public class GameManager : MonoBehaviour
         }
         else if (gameState == GameState.Exit) StartCoroutine(ExitGame());
 
-        if (gameStateToScreenIndex.TryGetValue(gameState, out int screenIndex))
-        {
-            navigationManager.SetScreen(screenIndex);
-        }
+        int screenIndex = navigationManager.GetScreenIndex(gameState);
+        navigationManager.SetScreen(screenIndex);
     }
 
     private IEnumerator ExitGame()

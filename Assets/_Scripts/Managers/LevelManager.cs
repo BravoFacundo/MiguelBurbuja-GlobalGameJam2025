@@ -7,8 +7,7 @@ using UnityEngine;
 public class LevelManager : MonoBehaviour
 {
     [Header("Data")]
-    public int maxLevelReached = 1;
-    public int currentLevel = 1;
+    public int currentLevel = 0;
 
     [Header("References")]
     [SerializeField] GameManager gameManager;
@@ -53,7 +52,6 @@ public class LevelManager : MonoBehaviour
     public void LoadLevel(int levelIndex)
     {
         Utilities.DeleteAllChildrens(grid);
-        if (maxLevelReached > levelPrefabs.Count) maxLevelReached = 1;
         GameObject newLevel = Instantiate(levelPrefabs[levelIndex], grid);
         StartCoroutine(SendPlayerToGrid());
     }
@@ -64,9 +62,8 @@ public class LevelManager : MonoBehaviour
     {
         SendPlayerToPool();
         currentLevel++;
-        maxLevelReached = Mathf.Clamp(maxLevelReached + 1, 1, levelPrefabs.Count);
-        if (maxLevelReached > levelPrefabs.Count) gameManager.SetGameState(GameState.WinScreen);
-        else gameManager.SetGameState(GameState.NextLevelScreen);
+        if (currentLevel == levelPrefabs.Count) gameManager.SetGameState(GameState.WinScreen);
+        else gameManager.SetGameState(GameState.Game);
     }
     /// <summary>
     /// despues de un delay carga el lose screen...

@@ -33,7 +33,7 @@ public class GameManager : MonoBehaviour
 
     [Header("References")]
     [SerializeField] LevelManager levelManager;
-    
+
     [Header("Local References")]
     [SerializeField] NavigationManager navigationManager;
     [SerializeField] HUDManager uiManager;
@@ -41,37 +41,43 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
-        LoadPlayerProgress();
+        PlayerData playerData = LoadFromJson();
+        levelManager.currentLevel = playerData.currentLevel;
     }
 
     private void Start() => SetGameState(currentGameState);
-
     public void SetGameState(GameState gameState)
     {
         currentGameState = gameState;
-        navigationManager.DisableAllScreens();
 
-        if (gameState == GameState.Menu)
+        switch (gameState)
         {
-            levelManager.gameObject.SetActive(false);
-            CheckPlayerProgress(levelManager.maxLevelReached);
-            musicManager.SetMusicTrack(0);
+            case GameState.Menu:
+                levelManager.gameObject.SetActive(false);
+                musicManager.SetMusicTrack(0);
+                startFromLevel = false;
+                break;
 
-            startFromLevel = false;
+            case GameState.Game:
+                levelManager.gameObject.SetActive(true);
+                if (startFromLevel) levelManager.LoadLevel(levelToLoad);
+                else levelManager.LoadLevel(0);
+                musicManager.SetMusicTrack(1);
+                break;
+
+            case GameState.LoseScreen:
+
+                break;
+
+            case GameState.Exit:
+                StartCoroutine(ExitGame());
+                break;
+
+            default:
+                break;
         }
-        else if (gameState == GameState.Game)
-        {
-            levelManager.gameObject.SetActive(true);
-            if (startFromLevel) levelManager.LoadLevel(levelToLoad);
-            else levelManager.LoadLevel(0);
-            musicManager.SetMusicTrack(1);
-        }
-        else if (gameState == GameState.Exit) StartCoroutine(ExitGame());
+        navigationManager.ActivateScreen(levelManager.currentLevel);
 
-        
-
-        int screenIndex = navigationManager.GetScreenIndex(gameState);
-        navigationManager.SetScreen(screenIndex);
     }
 
     public void LoadLevel(int index)
@@ -82,38 +88,19 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator ExitGame()
     {
-        SavePlayerProgress();
+        //---------- PLAYER PROGRESS ------------------------------------------------------------------------------------------------------------------
+         PlayerData currentData = new PlayerData
+        {
+            currentLevel = levelManager.currentLevel,
+        };
+        SaveToJson(currentData);
+
         Debug.Log("Exiting Game... Saving Progress");
         yield return new WaitForSeconds(.5f);
-
         Application.Quit();
     }
 
-    //---------- PLAYER PROGRESS ------------------------------------------------------------------------------------------------------------------
-
-    public void CheckPlayerProgress(int maxLevelReached)
-    {
-        if (maxLevelReached == 1) uiManager.NoPreviousProgress();
-        else uiManager.HasPreviousProgress();
-    }
-    public void LoadPlayerProgress()
-    {
-        PlayerData playerData = LoadFromJson();
-        levelManager.maxLevelReached = playerData.maxLevelReached;
-        levelManager.currentLevel = playerData.currentLevel;
-    }
-    public void SavePlayerProgress()
-    {
-        PlayerData currentData = new PlayerData
-        {
-            currentLevel = levelManager.currentLevel,
-            maxLevelReached = levelManager.maxLevelReached
-        };
-        SaveToJson(currentData);
-    }
-
     //---------- SAVE DATA ------------------------------------------------------------------------------------------------------------------
-
     private void SaveToJson(PlayerData dataToSave)
     {
         try
@@ -160,7 +147,6 @@ public class GameManager : MonoBehaviour
     {
         PlayerData defaultData = new PlayerData
         {
-            maxLevelReached = 1,
             currentLevel = 1
         };
 

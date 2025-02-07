@@ -23,37 +23,21 @@ public class NavigationManager : MonoBehaviour
     {
         gameManager = GetComponentInParent<GameManager>();
         canvas = GameObject.FindGameObjectWithTag("Canvas").GetComponent<Canvas>();
+        screens = canvas.transform.Cast<Transform>().Select(child => child.gameObject).ToList();
+        Utilities.DeactivateAllChildrens(canvas.transform);
 
-        GetAllScreens();
     }
 
     //---------- SCREENS ------------------------------------------------------------------------------------------------------------------
-
-    /// <summary>
-    /// obtiene todas las pantallas del canvas y las desactiva..
-    /// </summary>
-    public void GetAllScreens()
-    {
-        screens = canvas.transform.Cast<Transform>().Select(child => child.gameObject).ToList();
-        Utilities.DeactivateAllChildrens(canvas.transform);
-    }
-
-    /// <summary>
-    /// desactiva las pantallas en un for loop ....
-    /// </summary>
-    public void DisableAllScreens()
-    {
-        foreach (GameObject screen in screens) { screen.SetActive(false); }
-    }
-
+    
     /// <summary>
     /// Activa una pantalla por id.
     /// </summary>
-    public void SetScreen(int index) => screens[index].SetActive(true);
-
-    public int GetScreenIndex(GameState gameState)
+    /// 
+    public void ActivateScreen(int index)
     {
-        return (int)gameState;
+        foreach (GameObject screen in screens) { screen.SetActive(false); }
+        screens[index-1].SetActive(true);
     }
 
     //---------- BUTTONS ------------------------------------------------------------------------------------------------------------------
@@ -73,7 +57,7 @@ public class NavigationManager : MonoBehaviour
     }
 
     //PLAY
-    public void Button_Play() => Delayed_Action(GameState.LoreScreen, buttonSFX);
+    public void Button_Play() => Delayed_Action(GameState.Game, buttonSFX);
     //LVL SELECTOR 
     public void Button_LevelSelector() => Delayed_Action(GameState.LevelSelector, buttonSFX);
     //CREDITOS

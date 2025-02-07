@@ -50,11 +50,11 @@ public class LevelManager : MonoBehaviour
     /// <summary>
     /// limpia el grid y carga el siguiente nivel ..... si no hay mas niveles carga el win screen
     /// </summary>
-    public void LoadNextLevel()
+    public void LoadLevel(int levelIndex)
     {
         Utilities.DeleteAllChildrens(grid);
         if (maxLevelReached > levelPrefabs.Count) maxLevelReached = 1;
-        GameObject newLevel = Instantiate(levelPrefabs[maxLevelReached - 1], grid);
+        GameObject newLevel = Instantiate(levelPrefabs[levelIndex], grid);
         StartCoroutine(SendPlayerToGrid());
     }
     /// <summary>

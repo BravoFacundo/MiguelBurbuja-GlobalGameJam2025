@@ -31,7 +31,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("References")]
     [SerializeField] private LevelManager levelManager;
-    [SerializeField] private UIManager uiManager;
+    [SerializeField] private HUDManager uiManager;
     [SerializeField] private MusicManager musicManager;
 
     [Header("Local References")]
@@ -40,7 +40,7 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         GameObject manager = GameObject.FindGameObjectWithTag("Managers");
-        uiManager = manager.GetComponentInChildren<UIManager>();
+        uiManager = manager.GetComponentInChildren<HUDManager>();
         musicManager = manager.GetComponentInChildren<MusicManager>();
         
         levelManager = GameObject.FindWithTag("Levels").GetComponent<LevelManager>();

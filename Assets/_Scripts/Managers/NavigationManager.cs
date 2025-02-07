@@ -104,6 +104,11 @@ public class NavigationManager : MonoBehaviour
         else gameManager.SetGameState(GameState.Game);
     }
     public void Button_Exit() => Delayed_Action(GameState.Exit, exitSFX);
-    
+
+    public void Button_SelectLevel(int levelIndex)
+    {
+        gameManager.LoadLevel(levelIndex - 1);
+        Delayed_Action(GameState.Game, buttonSFX);
+    }
 
 }

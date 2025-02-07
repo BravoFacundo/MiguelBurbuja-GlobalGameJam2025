@@ -6,8 +6,9 @@ public class MusicManager : MonoBehaviour
 {
     [Header("Debug")]
     [SerializeField] int currentTrackIndex = 1;
-    
+
     [Header("Configuration")]
+    [SerializeField] float startVolume = .5f;
     [SerializeField] float transitionDuration = 0.25f;
 
     [Header("Music Tracks")]
@@ -24,7 +25,7 @@ public class MusicManager : MonoBehaviour
             source.clip = musicTracks[i];
             source.loop = true;
             source.playOnAwake = false;
-            source.volume = (i == currentTrackIndex) ? 0.5f : 0f;
+            source.volume = (i == currentTrackIndex) ? startVolume : 0f;
             source.Play();
             audioSources.Add(source);
         }
@@ -51,8 +52,8 @@ public class MusicManager : MonoBehaviour
             timer += Time.deltaTime;
             float progress = timer / transitionDuration;
 
-            activeSource.volume = Mathf.Lerp(1f, 0f, progress);
-            targetSource.volume = Mathf.Lerp(0f, 1f, progress);
+            activeSource.volume = Mathf.Lerp(startVolume, 0f, progress);
+            targetSource.volume = Mathf.Lerp(0f, startVolume, progress);
 
             yield return null;
         }
@@ -65,8 +66,7 @@ public class MusicManager : MonoBehaviour
     public void SetMusicTrack(int index)
     {
         currentTrackIndex = index;
-        TransitionToTrack(index);
-        Debug.Log(currentTrackIndex);
+        TransitionToTrack(index); //Debug.Log(currentTrackIndex);
     }
     public void AddMusicTrack()
     {

@@ -7,17 +7,18 @@ using UnityEngine.SceneManagement;
 
 public enum GameState
 {
-    Menu, 
-    LevelSelector, 
-    LoreScreen, 
-    TutorialScreen, 
+    Menu,
+    LevelSelector,
+    ConfigurationScreen,
     CreditsScreen,
-    ConfigurationScreen, 
-    PauseScreen, 
-    LoseScreen, 
-    NextLevelScreen,  
+    LoreScreen,
+    TutorialScreen,
+    PauseScreen,
+    LoseScreen,
+    NextLevelScreen,
     WinScreen,
     Game,
+    LanguageSelector,
     Exit
 }
 
@@ -26,14 +27,16 @@ public class GameManager : MonoBehaviour
     private readonly string filePath = Application.dataPath + "/PlayerDataFile.json";
 
     [Header("Debug")]
-    public GameState currentGameState; 
+    public GameState currentGameState;
+    private bool startFromLevel = false;
+    private int levelToLoad;
 
     [Header("References")]
     [SerializeField] LevelManager levelManager;
     
     [Header("Local References")]
     [SerializeField] NavigationManager navigationManager;
-    [SerializeField] UIManager uiManager;
+    [SerializeField] HUDManager uiManager;
     [SerializeField] MusicManager musicManager;
 
     private void Awake()
@@ -53,17 +56,28 @@ public class GameManager : MonoBehaviour
             levelManager.gameObject.SetActive(false);
             CheckPlayerProgress(levelManager.maxLevelReached);
             musicManager.SetMusicTrack(0);
+
+            startFromLevel = false;
         }
         else if (gameState == GameState.Game)
         {
             levelManager.gameObject.SetActive(true);
-            levelManager.LoadNextLevel();
+            if (startFromLevel) levelManager.LoadLevel(levelToLoad);
+            else levelManager.LoadLevel(0);
             musicManager.SetMusicTrack(1);
         }
         else if (gameState == GameState.Exit) StartCoroutine(ExitGame());
 
+        
+
         int screenIndex = navigationManager.GetScreenIndex(gameState);
         navigationManager.SetScreen(screenIndex);
+    }
+
+    public void LoadLevel(int index)
+    {
+        startFromLevel = true;
+        levelToLoad = index;
     }
 
     private IEnumerator ExitGame()

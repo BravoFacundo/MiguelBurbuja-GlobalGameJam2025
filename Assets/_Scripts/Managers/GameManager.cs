@@ -8,18 +8,9 @@ using UnityEngine.SceneManagement;
 public enum GameState
 {
     Menu,
-    LevelSelector,
-    ConfigurationScreen,
-    CreditsScreen,
-    LoreScreen,
-    TutorialScreen,
-    PauseScreen,
-    LoseScreen,
-    NextLevelScreen,
-    WinScreen,
     Game,
-    LanguageSelector,
-    Exit
+    Lose,
+    Win
 }
 
 public class GameManager : MonoBehaviour
@@ -28,6 +19,7 @@ public class GameManager : MonoBehaviour
 
     [Header("Debug")]
     public GameState currentGameState;
+    public string currentScreen;
     [SerializeField] private bool startFromLevel;
     [SerializeField] private int levelToLoad;
 
@@ -55,34 +47,16 @@ public class GameManager : MonoBehaviour
             case GameState.Menu:
                 musicManager.SetMusicTrack(0);
                 levelManager.gameObject.SetActive(false);
-                navigationManager.ActivateScreen(0);
+                navigationManager.ActivateScreen("Menu");
                 startFromLevel = false;
                 break;
 
             case GameState.Game:
                 musicManager.SetMusicTrack(1);
                 levelManager.gameObject.SetActive(true);
-                if (!startFromLevel)
-                {
-                    levelManager.LoadLevel(0);
-                    navigationManager.ActivateScreen(4);
-                }
-                else
-                {
-                    levelManager.LoadLevel(levelToLoad);
-                    navigationManager.ActivateScreen(10);
-                }
-                break;
-
-            case GameState.Exit:
-                StartCoroutine(ExitGame());
-                break;
-
-            case GameState.LoreScreen:
-                navigationManager.ActivateScreen(5);
-                break;
-            case GameState.TutorialScreen:
-                navigationManager.ActivateScreen(10);
+                if (!startFromLevel) levelManager.LoadLevel(0);
+                else levelManager.LoadLevel(levelToLoad);
+                navigationManager.ActivateScreen("Game");
                 break;
 
             default:
@@ -98,7 +72,7 @@ public class GameManager : MonoBehaviour
         levelToLoad = index;
     }
 
-    private IEnumerator ExitGame()
+    public IEnumerator ExitGame()
     {
         //---------- PLAYER PROGRESS ------------------------------------------------------------------------------------------------------------------
          PlayerData currentData = new PlayerData

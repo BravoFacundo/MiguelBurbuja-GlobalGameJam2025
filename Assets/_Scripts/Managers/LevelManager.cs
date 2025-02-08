@@ -26,6 +26,7 @@ public class LevelManager : MonoBehaviour
         playerPos = player.transform;
         SendPlayerToPool();
     }
+    private void OnDisable() => SendPlayerToPool();
 
     public void SendPlayerToPool()
     {
@@ -54,13 +55,13 @@ public class LevelManager : MonoBehaviour
     {
         SendPlayerToPool();
         currentLevel++;
-        if (currentLevel == levelPrefabs.Count) gameManager.SetGameState(GameState.WinScreen);
+        if (currentLevel == levelPrefabs.Count) gameManager.SetGameState(GameState.Win);
         else gameManager.SetGameState(GameState.Game);
     }
     public IEnumerator PlayerDie()
     {
         yield return new WaitForSeconds(.75f);
-        gameManager.SetGameState(GameState.LoseScreen);
+        gameManager.SetGameState(GameState.Lose);
     }
 
 }

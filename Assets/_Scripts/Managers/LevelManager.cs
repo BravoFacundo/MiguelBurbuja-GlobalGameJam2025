@@ -27,17 +27,11 @@ public class LevelManager : MonoBehaviour
         SendPlayerToPool();
     }
 
-    /// <summary>
-    /// desabilita el player y lo mueve a la pool
-    /// </summary>
     public void SendPlayerToPool()
     {
         player.canMove = false;
         playerPos.position = PlayerPool;
     }
-    /// <summary>
-    /// envia al player pivot del grid despues de un delay 
-    /// </summary>
     private IEnumerator SendPlayerToGrid()
     {
         yield return new WaitForSeconds(1f);
@@ -52,12 +46,10 @@ public class LevelManager : MonoBehaviour
     public void LoadLevel(int levelIndex)
     {
         Utilities.DeleteAllChildrens(grid);
-        GameObject newLevel = Instantiate(levelPrefabs[levelIndex], grid);
-        StartCoroutine(SendPlayerToGrid());
+        Instantiate(levelPrefabs[levelIndex], grid);
+        if (levelIndex != 1) StartCoroutine(SendPlayerToGrid());
     }
-    /// <summary>
-    /// envia al player a la pool, suma al lvl y carga el siguiente nivel
-    /// </summary>
+
     public void PlayerReachedGoal()
     {
         SendPlayerToPool();
@@ -65,9 +57,6 @@ public class LevelManager : MonoBehaviour
         if (currentLevel == levelPrefabs.Count) gameManager.SetGameState(GameState.WinScreen);
         else gameManager.SetGameState(GameState.Game);
     }
-    /// <summary>
-    /// despues de un delay carga el lose screen...
-    /// </summary>
     public IEnumerator PlayerDie()
     {
         yield return new WaitForSeconds(.75f);

@@ -28,8 +28,8 @@ public class GameManager : MonoBehaviour
 
     [Header("Debug")]
     public GameState currentGameState;
-    private bool startFromLevel = false;
-    private int levelToLoad;
+    [SerializeField] private bool startFromLevel;
+    [SerializeField] private int levelToLoad;
 
     [Header("References")]
     [SerializeField] LevelManager levelManager;
@@ -53,34 +53,46 @@ public class GameManager : MonoBehaviour
         switch (gameState)
         {
             case GameState.Menu:
-                levelManager.gameObject.SetActive(false);
                 musicManager.SetMusicTrack(0);
+                levelManager.gameObject.SetActive(false);
+                navigationManager.ActivateScreen(0);
                 startFromLevel = false;
                 break;
 
             case GameState.Game:
-                levelManager.gameObject.SetActive(true);
-                if (startFromLevel) levelManager.LoadLevel(levelToLoad);
-                else levelManager.LoadLevel(0);
                 musicManager.SetMusicTrack(1);
-                break;
-
-            case GameState.LoseScreen:
-
+                levelManager.gameObject.SetActive(true);
+                if (!startFromLevel)
+                {
+                    levelManager.LoadLevel(0);
+                    navigationManager.ActivateScreen(4);
+                }
+                else
+                {
+                    levelManager.LoadLevel(levelToLoad);
+                    navigationManager.ActivateScreen(10);
+                }
                 break;
 
             case GameState.Exit:
                 StartCoroutine(ExitGame());
                 break;
 
+            case GameState.LoreScreen:
+                navigationManager.ActivateScreen(5);
+                break;
+            case GameState.TutorialScreen:
+                navigationManager.ActivateScreen(10);
+                break;
+
             default:
                 break;
         }
-        navigationManager.ActivateScreen(levelManager.currentLevel);
+        //navigationManager.ActivateScreen(levelManager.currentLevel);
 
     }
 
-    public void LoadLevel(int index)
+    public void SetLevelToLoad(int index)
     {
         startFromLevel = true;
         levelToLoad = index;

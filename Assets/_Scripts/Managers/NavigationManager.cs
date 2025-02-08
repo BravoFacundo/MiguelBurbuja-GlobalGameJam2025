@@ -25,7 +25,6 @@ public class NavigationManager : MonoBehaviour
         canvas = GameObject.FindGameObjectWithTag("Canvas").GetComponent<Canvas>();
         screens = canvas.transform.Cast<Transform>().Select(child => child.gameObject).ToList();
         Utilities.DeactivateAllChildrens(canvas.transform);
-
     }
 
     //---------- SCREENS ------------------------------------------------------------------------------------------------------------------
@@ -37,7 +36,7 @@ public class NavigationManager : MonoBehaviour
     public void ActivateScreen(int index)
     {
         foreach (GameObject screen in screens) { screen.SetActive(false); }
-        screens[index-1].SetActive(true);
+        screens[index].SetActive(true);
     }
 
     //---------- BUTTONS ------------------------------------------------------------------------------------------------------------------
@@ -48,12 +47,20 @@ public class NavigationManager : MonoBehaviour
     /// </summary>
     private void Delayed_Action(GameState gameState, AudioClip sfx) 
         => StartCoroutine(Delayed_Action(gameState, pressDelay, sfx));
-
     private IEnumerator Delayed_Action(GameState gameState, float delay, AudioClip sfx)
     {
         Utilities.PlaySoundAndDestroy(sfx);
         yield return new WaitForSeconds(delay);
         gameManager.SetGameState(gameState);
+    }
+
+    private void Delayed_Action(int index, AudioClip sfx)
+        => StartCoroutine(Delayed_Action(index, pressDelay, sfx));
+    private IEnumerator Delayed_Action(int index, float delay, AudioClip sfx)
+    {
+        Utilities.PlaySoundAndDestroy(sfx);
+        yield return new WaitForSeconds(delay);
+        ActivateScreen(index);
     }
 
     //PLAY
@@ -74,24 +81,39 @@ public class NavigationManager : MonoBehaviour
         else Delayed_Action(GameState.Menu, buttonSFX);
     }
 
+    public void Button_Tutorial() => Delayed_Action(5, buttonSFX);
+
     /// <summary>
     /// distintos comportamientos de continuar
     /// </summary>
+    /// 
     public void Button_Continue()
     {
-        if (gameManager.currentGameState == GameState.LoreScreen)
-            Delayed_Action(GameState.TutorialScreen, buttonSFX);
-        else if (gameManager.currentGameState == GameState.TutorialScreen)
-            Delayed_Action(GameState.Game, buttonSFX);
-        else if (gameManager.currentGameState == GameState.WinScreen || gameManager.currentGameState == GameState.LoseScreen)
-            Delayed_Action(GameState.Menu, buttonSFX);
-        else gameManager.SetGameState(GameState.Game);
+        switch (gameManager.currentGameState)
+        {
+            case GameState.LoreScreen:
+                Delayed_Action(GameState.TutorialScreen, buttonSFX);
+                break;
+
+            case GameState.TutorialScreen:
+                Delayed_Action(GameState.Game, buttonSFX);
+                break;
+
+            case GameState.WinScreen:
+            case GameState.LoseScreen:
+                Delayed_Action(GameState.Menu, buttonSFX);
+                break;
+
+            default:
+                gameManager.SetGameState(GameState.Game);
+                break;
+        }
     }
     public void Button_Exit() => Delayed_Action(GameState.Exit, exitSFX);
 
     public void Button_SelectLevel(int levelIndex)
     {
-        gameManager.LoadLevel(levelIndex - 1);
+        gameManager.SetLevelToLoad(levelIndex - 1);
         Delayed_Action(GameState.Game, buttonSFX);
     }
 

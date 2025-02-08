@@ -28357,7 +28357,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1672547991005678188, guid: 238256f596d80634490b80f913e47315, type: 3}
       propertyPath: m_ColliderPaths.Array.size
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1672547991005678188, guid: 238256f596d80634490b80f913e47315, type: 3}
       propertyPath: m_CompositePaths.m_Paths.Array.data[0].Array.data[0].x
@@ -31857,7 +31857,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6967545966360842980, guid: 238256f596d80634490b80f913e47315, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

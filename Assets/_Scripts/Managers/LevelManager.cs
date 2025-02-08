@@ -38,6 +38,8 @@ public class LevelManager : MonoBehaviour
         yield return new WaitForSeconds(1f);
         Transform playerPivot = grid.Find(grid.GetChild(0).name + "/PlayerPivot");
         playerPos.position = playerPivot.position;
+        player.GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.None;
+        player.GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezeRotation;
         Destroy(playerPivot.gameObject);
         player.canMove = true;
     }
@@ -48,7 +50,8 @@ public class LevelManager : MonoBehaviour
     {
         Utilities.DeleteAllChildrens(grid);
         Instantiate(levelPrefabs[levelIndex], grid);
-        if (levelIndex != 1) StartCoroutine(SendPlayerToGrid());
+        StartCoroutine(SendPlayerToGrid());
+        //if (levelIndex != 1) StartCoroutine(SendPlayerToGrid());
     }
 
     public void PlayerReachedGoal()
@@ -56,7 +59,11 @@ public class LevelManager : MonoBehaviour
         SendPlayerToPool();
         currentLevel++;
         if (currentLevel == levelPrefabs.Count) gameManager.SetGameState(GameState.Win);
-        else gameManager.SetGameState(GameState.Game);
+        else
+        {
+            gameManager.SetLevelToLoad(currentLevel-1);
+            gameManager.SetGameState(GameState.Game);
+        }
     }
     public IEnumerator PlayerDie()
     {

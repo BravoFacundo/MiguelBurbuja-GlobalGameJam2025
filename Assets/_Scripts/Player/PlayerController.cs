@@ -129,7 +129,7 @@ public class PlayerController : MonoBehaviour
         StartCoroutine(levelManager.PlayerDie());
         rb.constraints = RigidbodyConstraints2D.FreezePosition;
         yield return new WaitForSeconds(.15f);
-        Destroy(gameObject);
+        levelManager.SendPlayerToPool();
         Utilities.PlaySoundAndDestroy(popSFX);
         yield return new WaitForSeconds(1f);
     }

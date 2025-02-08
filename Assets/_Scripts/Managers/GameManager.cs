@@ -49,6 +49,7 @@ public class GameManager : MonoBehaviour
                 levelManager.gameObject.SetActive(false);
                 navigationManager.ActivateScreen("Menu");
                 startFromLevel = false;
+                levelToLoad = 0;
                 break;
 
             case GameState.Game:
@@ -59,10 +60,13 @@ public class GameManager : MonoBehaviour
                 navigationManager.ActivateScreen("Game");
                 break;
 
-            default:
+            case GameState.Lose:
+                navigationManager.ActivateScreen("Lose");
+                break;
+            case GameState.Win:
+                navigationManager.ActivateScreen("Win");
                 break;
         }
-        //navigationManager.ActivateScreen(levelManager.currentLevel);
 
     }
 
@@ -70,12 +74,13 @@ public class GameManager : MonoBehaviour
     {
         startFromLevel = true;
         levelToLoad = index;
+        levelManager.currentLevel = levelToLoad+1;
     }
 
     public IEnumerator ExitGame()
     {
         //---------- PLAYER PROGRESS ------------------------------------------------------------------------------------------------------------------
-         PlayerData currentData = new PlayerData
+        PlayerData currentData = new PlayerData
         {
             currentLevel = levelManager.currentLevel,
         };
@@ -87,6 +92,7 @@ public class GameManager : MonoBehaviour
     }
 
     //---------- SAVE DATA ------------------------------------------------------------------------------------------------------------------
+    
     private void SaveToJson(PlayerData dataToSave)
     {
         try

@@ -106,7 +106,7 @@ public class NavigationManager : MonoBehaviour
     public void Button_Exit() => StartCoroutine(gameManager.ExitGame());
     public void Button_SelectLevel(int levelIndex)
     {
-        gameManager.SetLevelToLoad(levelIndex - 1);
+        gameManager.SetLevelToLoad(levelIndex-1);
         Delayed_Action(GameState.Game, buttonSFX);
     }
 

@@ -58,7 +58,7 @@ public class LevelManager : MonoBehaviour
     {
         SendPlayerToPool();
         currentLevel++;
-        if (currentLevel == levelPrefabs.Count) gameManager.SetGameState(GameState.Win);
+        if (currentLevel == levelPrefabs.Count+1) gameManager.SetGameState(GameState.Win);
         else
         {
             gameManager.SetLevelToLoad(currentLevel-1);

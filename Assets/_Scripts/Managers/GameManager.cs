@@ -5,39 +5,36 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public enum GameState
-{
-    Menu,
-    Game,
-    Lose,
-    Win
-}
+public enum GameState { Menu, Game, Lose, Win }
 
 public class GameManager : MonoBehaviour
 {
-    private readonly string filePath = Application.dataPath + "/PlayerDataFile.json";
 
     [Header("Debug")]
     public GameState currentGameState;
     public string currentScreen;
-    [SerializeField] private bool startFromLevel;
-    [SerializeField] private int levelToLoad;
 
-    [Header("References")]
-    [SerializeField] LevelManager levelManager;
+    [Header("Configuration")]
+    [SerializeField] private int levelToLoad;
+    [SerializeField] private bool startFromLevel;
 
     [Header("Local References")]
     [SerializeField] NavigationManager navigationManager;
     [SerializeField] HUDManager uiManager;
     [SerializeField] MusicManager musicManager;
 
+    [Header("References")]
+    [SerializeField] LevelManager levelManager;
+
+    private readonly string filePath = Application.dataPath + "/PlayerDataFile.json";
+
     private void Awake()
     {
         PlayerData playerData = LoadFromJson();
         levelManager.currentLevel = playerData.currentLevel;
     }
-
     private void Start() => SetGameState(currentGameState);
+
     public void SetGameState(GameState gameState)
     {
         currentGameState = gameState;
@@ -45,19 +42,20 @@ public class GameManager : MonoBehaviour
         switch (gameState)
         {
             case GameState.Menu:
-                musicManager.SetMusicTrack(0);
                 levelManager.gameObject.SetActive(false);
                 navigationManager.ActivateScreen("Menu");
+                musicManager.SetMusicTrack("Menu");
+                musicManager.DisableTenseTrack();
                 startFromLevel = false;
                 levelToLoad = 0;
                 break;
 
             case GameState.Game:
-                musicManager.SetMusicTrack(1);
                 levelManager.gameObject.SetActive(true);
                 if (!startFromLevel) levelManager.LoadLevel(0);
                 else levelManager.LoadLevel(levelToLoad);
                 navigationManager.ActivateScreen("Game");
+                musicManager.SetMusicTrack("Game");
                 break;
 
             case GameState.Lose:
@@ -79,7 +77,6 @@ public class GameManager : MonoBehaviour
 
     public IEnumerator ExitGame()
     {
-        //---------- PLAYER PROGRESS ------------------------------------------------------------------------------------------------------------------
         PlayerData currentData = new PlayerData
         {
             currentLevel = levelManager.currentLevel,

@@ -5,42 +5,35 @@ using UnityEngine;
 public class MusicManager : MonoBehaviour
 {
     [Header("Debug")]
-    [SerializeField] int currentTrackIndex = 1;
+    [SerializeField] int currentTrackIndex = 0;
 
     [Header("Configuration")]
     [SerializeField] float startVolume = .5f;
     [SerializeField] float transitionDuration = 0.25f;
 
     [Header("Music Tracks")]
-    public List<AudioClip> musicTracks;
-    private List<AudioSource> audioSources;
+    [SerializeField] List<AudioClip> musicTracks;
+    [SerializeField] List<AudioSource> audioSources;
 
-    private void Awake()
+    private void Awake() => SetAudioSources();
+    private void SetAudioSources()
     {
-        audioSources = new List<AudioSource>();
-
-        for (int i = 0; i < musicTracks.Count; i++)
+        audioSources = new List<AudioSource>(GetComponents<AudioSource>());
+        for (int i = 0; i < audioSources.Count; i++)
         {
-            AudioSource source = gameObject.AddComponent<AudioSource>();
-            source.clip = musicTracks[i];
-            source.loop = true;
-            source.playOnAwake = false;
-            source.volume = (i == currentTrackIndex) ? startVolume : 0f;
-            source.Play();
-            audioSources.Add(source);
+            audioSources[i].clip = musicTracks[i];
+            audioSources[i].loop = true;
+            audioSources[i].playOnAwake = false;
+            audioSources[i].volume = (i == currentTrackIndex) ? startVolume : 0f;
+            audioSources[i].Play();
         }
     }
 
-    public void TransitionToTrack(int newTrackIndex)
+    public void SetMusicTrack(string track)
     {
-        if (newTrackIndex < 0 || newTrackIndex >= audioSources.Count || newTrackIndex == currentTrackIndex)
-        {
-            Debug.LogWarning("Invalid track index or already playing this track.");
-            return;
-        }
-        StartCoroutine(TransitionRoutine(newTrackIndex));
+        if (track == "Menu") StartCoroutine(TransitionRoutine(0));
+        else if (track == "Game") StartCoroutine(TransitionRoutine(1));
     }
-
     private IEnumerator TransitionRoutine(int newTrackIndex)
     {
         float timer = 0f;
@@ -58,22 +51,24 @@ public class MusicManager : MonoBehaviour
             yield return null;
         }
         activeSource.volume = 0f;
-        targetSource.volume = 1f;
+        targetSource.volume = startVolume;
 
         currentTrackIndex = newTrackIndex;
     }
 
-    public void SetMusicTrack(int index)
+    public void EnableTenseTrack() => StartCoroutine(FadeTenseTrack(audioSources[2], transitionDuration));
+    public void DisableTenseTrack() => StartCoroutine(FadeTenseTrack(audioSources[2], 0f));
+    private IEnumerator FadeTenseTrack(AudioSource track, float targetVolume)
     {
-        currentTrackIndex = index;
-        TransitionToTrack(index); //Debug.Log(currentTrackIndex);
-    }
-    public void AddMusicTrack()
-    {
-        TransitionToTrack(currentTrackIndex++);
-    }
-    public void SubstractMusicTrack()
-    {
-        TransitionToTrack(currentTrackIndex--);
+        float startVol = track.volume;
+        float timer = 0f;
+
+        while (timer < transitionDuration)
+        {
+            timer += Time.deltaTime;
+            track.volume = Mathf.Lerp(startVol, targetVolume, timer / transitionDuration);
+            yield return null;
+        }
+        track.volume = targetVolume;
     }
 }

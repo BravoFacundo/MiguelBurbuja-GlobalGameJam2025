@@ -96,8 +96,8 @@ public class PlayerController : MonoBehaviour
         isCloseToWall = Physics2D.OverlapCircle(transform.position, wallDetectionDistance, collisionLayer) != null;
         if (prevState == isCloseToWall) return;
 
-        if (isCloseToWall) musicManager.AddMusicTrack();
-        else musicManager.SubstractMusicTrack();
+        if (isCloseToWall) musicManager.EnableTenseTrack();
+        else musicManager.DisableTenseTrack();
     }
     private void Handle_BlowStamina()
     {

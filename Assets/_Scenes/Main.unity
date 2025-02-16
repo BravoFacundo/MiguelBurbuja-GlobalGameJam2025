@@ -1978,8 +1978,8 @@ GameObject:
   - component: {fileID: 144885536}
   - component: {fileID: 144885537}
   m_Layer: 0
-  m_Name: Game Manager
-  m_TagString: Managers
+  m_Name: GAME Manager
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1996,11 +1996,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1602609271}
-  - {fileID: 1503134115}
-  - {fileID: 1495012483}
-  m_Father: {fileID: 0}
+  m_Children: []
+  m_Father: {fileID: 967521271}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &144885537
 MonoBehaviour:
@@ -2019,7 +2016,7 @@ MonoBehaviour:
   levelToLoad: 0
   startFromLevel: 0
   navigationManager: {fileID: 1602609272}
-  uiManager: {fileID: 1495012484}
+  uiManager: {fileID: 0}
   musicManager: {fileID: 1503134116}
   levelManager: {fileID: 724916347}
 --- !u!1 &188962083
@@ -4502,6 +4499,90 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 463905799}
   m_CullTransparentMesh: 1
+--- !u!1 &479819398
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 479819400}
+  - component: {fileID: 479819399}
+  m_Layer: 0
+  m_Name: HeadSprite_0005_004_BW
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!212 &479819399
+SpriteRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 479819398}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_Sprite: {fileID: 21300000, guid: 98b95f0f355d36d4b8b366c19e684699, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 6.5, y: 7.5}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_MaskInteraction: 0
+  m_SpriteSortPoint: 0
+--- !u!4 &479819400
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 479819398}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.08, y: -0.01, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &506179676
 GameObject:
   m_ObjectHideFlags: 0
@@ -9096,6 +9177,40 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 948097689}
   m_CullTransparentMesh: 1
+--- !u!1 &967521270
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 967521271}
+  m_Layer: 0
+  m_Name: Managers
+  m_TagString: Managers
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &967521271
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 967521270}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 144885536}
+  - {fileID: 1602609271}
+  - {fileID: 1503134115}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &969317729
 GameObject:
   m_ObjectHideFlags: 0
@@ -13974,76 +14089,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!1 &1495012482
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1495012483}
-  - component: {fileID: 1495012484}
-  m_Layer: 0
-  m_Name: HUD Manager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1495012483
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1495012482}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 144885536}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1495012484
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1495012482}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0c3bf57ea0d0f4c468dcf97041f6c910, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  playerPos: {fileID: 0}
-  maxStamina: 0
-  blowFaces:
-  - {fileID: 521857714}
-  - {fileID: 1952205805}
-  - {fileID: 1591586308}
-  - {fileID: 1959003677}
-  blowFacesMovement: {fileID: 1863764585}
-  normalTint: {r: 0, g: 0.9607843, b: 1, a: 1}
-  tiredTint: {r: 0.972549, g: 0.6745098, b: 0.7607843, a: 1}
-  blowSFX: {fileID: 8300000, guid: e726c8bd2d50fef44a53f9e0bebadbe3, type: 3}
-  tiredSFX: {fileID: 8300000, guid: c8ba2dd6c871c5246888b4b29b884baf, type: 3}
-  blowBar: {fileID: 352710719}
-  playButtonText: {fileID: 1646425044}
-  spriteFaces:
-  - {fileID: 21300000, guid: 34c2d367fd0fe024f987942f5e7fbe38, type: 3}
-  - {fileID: 21300000, guid: c100e6913ec0ccf4ea506e70427474b5, type: 3}
-  - {fileID: 21300000, guid: 29f02a2af3c63f541bf5cd22b9b462e9, type: 3}
-  - {fileID: 21300000, guid: c094bd08305ce594ca1be8ca0c9fc2a2, type: 3}
-  - {fileID: 21300000, guid: d3e7ccb15a0f25546b1988b99fa6ee86, type: 3}
-  - {fileID: 21300000, guid: f57e42b2b7ee79e43a95c91d1640648e, type: 3}
-  - {fileID: 21300000, guid: 51cdb47223a7b0246a154e47cbb69568, type: 3}
-  - {fileID: 21300000, guid: 1a68a5c4d4aed8542b3131576a8a608b, type: 3}
-  - {fileID: 21300000, guid: d114581a40038b94ea3449d2e190f924, type: 3}
-  - {fileID: 21300000, guid: 378a2e7fae15f0f46862d5a7f9050fe8, type: 3}
-  - {fileID: 21300000, guid: c5238aea8de21e84fb2190efb444d12e, type: 3}
 --- !u!1 &1503134114
 GameObject:
   m_ObjectHideFlags: 0
@@ -14053,12 +14098,13 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1503134115}
+  - component: {fileID: 1503134120}
   - component: {fileID: 1503134116}
   - component: {fileID: 1503134117}
   - component: {fileID: 1503134118}
   - component: {fileID: 1503134119}
   m_Layer: 0
-  m_Name: Music Manager
+  m_Name: SOUND Manager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -14077,7 +14123,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 144885536}
+  m_Father: {fileID: 967521271}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1503134116
 MonoBehaviour:
@@ -14389,6 +14435,18 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &1503134120
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1503134114}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b35d2761ade72943942a192b8d8d119, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1516231869
 GameObject:
   m_ObjectHideFlags: 0
@@ -15391,8 +15449,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1602609271}
   - component: {fileID: 1602609272}
+  - component: {fileID: 1602609273}
   m_Layer: 0
-  m_Name: Navigation Manager
+  m_Name: UI Manager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -15411,7 +15470,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 144885536}
+  m_Father: {fileID: 967521271}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1602609272
 MonoBehaviour:
@@ -15428,6 +15487,44 @@ MonoBehaviour:
   pressDelay: 1
   buttonSFX: {fileID: 8300000, guid: f1087b07f2238ed4cb2136ff419d407a, type: 3}
   exitSFX: {fileID: 8300000, guid: e726c8bd2d50fef44a53f9e0bebadbe3, type: 3}
+--- !u!114 &1602609273
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1602609270}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c3bf57ea0d0f4c468dcf97041f6c910, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerPos: {fileID: 0}
+  maxStamina: 0
+  blowFaces:
+  - {fileID: 521857714}
+  - {fileID: 1952205805}
+  - {fileID: 1591586308}
+  - {fileID: 1959003677}
+  blowFacesMovement: {fileID: 1863764585}
+  normalTint: {r: 0, g: 0.9607843, b: 1, a: 1}
+  tiredTint: {r: 0.972549, g: 0.6745098, b: 0.7607843, a: 1}
+  blowSFX: {fileID: 8300000, guid: e726c8bd2d50fef44a53f9e0bebadbe3, type: 3}
+  tiredSFX: {fileID: 8300000, guid: c8ba2dd6c871c5246888b4b29b884baf, type: 3}
+  blowBar: {fileID: 352710719}
+  playButtonText: {fileID: 1646425044}
+  spriteFaces:
+  - {fileID: 21300000, guid: 34c2d367fd0fe024f987942f5e7fbe38, type: 3}
+  - {fileID: 21300000, guid: c100e6913ec0ccf4ea506e70427474b5, type: 3}
+  - {fileID: 21300000, guid: 29f02a2af3c63f541bf5cd22b9b462e9, type: 3}
+  - {fileID: 21300000, guid: c094bd08305ce594ca1be8ca0c9fc2a2, type: 3}
+  - {fileID: 21300000, guid: d3e7ccb15a0f25546b1988b99fa6ee86, type: 3}
+  - {fileID: 21300000, guid: f57e42b2b7ee79e43a95c91d1640648e, type: 3}
+  - {fileID: 21300000, guid: 51cdb47223a7b0246a154e47cbb69568, type: 3}
+  - {fileID: 21300000, guid: 1a68a5c4d4aed8542b3131576a8a608b, type: 3}
+  - {fileID: 21300000, guid: d114581a40038b94ea3449d2e190f924, type: 3}
+  - {fileID: 21300000, guid: 378a2e7fae15f0f46862d5a7f9050fe8, type: 3}
+  - {fileID: 21300000, guid: c5238aea8de21e84fb2190efb444d12e, type: 3}
 --- !u!1 &1640152635
 GameObject:
   m_ObjectHideFlags: 0
@@ -32338,7 +32435,7 @@ PrefabInstance:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 144885536}
+  - {fileID: 967521271}
   - {fileID: 1963399559}
   - {fileID: 519420032}
   - {fileID: 1928805378}
@@ -32346,3 +32443,4 @@ SceneRoots:
   - {fileID: 1600992192}
   - {fileID: 724916346}
   - {fileID: 1877290174}
+  - {fileID: 479819400}

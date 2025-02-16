@@ -39,9 +39,9 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
-        GameObject manager = GameObject.FindGameObjectWithTag("Managers");
-        uiManager = manager.GetComponentInChildren<HUDManager>();
-        musicManager = manager.GetComponentInChildren<MusicManager>();
+        GameObject managers = GameObject.FindGameObjectWithTag("Managers");       
+        uiManager = managers.GetComponentInChildren<HUDManager>();
+        musicManager = managers.GetComponentInChildren<MusicManager>();
         
         levelManager = GameObject.FindWithTag("Levels").GetComponent<LevelManager>();
         rb = GetComponent<Rigidbody2D>();
@@ -130,13 +130,13 @@ public class PlayerController : MonoBehaviour
         rb.constraints = RigidbodyConstraints2D.FreezePosition;
         yield return new WaitForSeconds(.15f);
         levelManager.SendPlayerToPool();
-        Utilities.PlaySoundAndDestroy(popSFX);
+        SoundManager.PlaySoundAndDestroy(popSFX);
         yield return new WaitForSeconds(1f);
     }
     private IEnumerator Player_Win()
     {
         yield return new WaitForSeconds(.25f);
-        Utilities.PlaySoundAndDestroy(popSFX);
+        SoundManager.PlaySoundAndDestroy(popSFX);
         rb.constraints = RigidbodyConstraints2D.FreezePosition;
         levelManager.PlayerReachedGoal();
     }
@@ -144,7 +144,7 @@ public class PlayerController : MonoBehaviour
     {
         yield return new WaitForSeconds(.25f);
         blowStamina = maxStamina;
-        Utilities.PlaySoundAndDestroy(popSFX);
+        SoundManager.PlaySoundAndDestroy(popSFX);
         Destroy(inhaler);
     }
 

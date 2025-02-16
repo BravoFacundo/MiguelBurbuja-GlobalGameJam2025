@@ -7,8 +7,6 @@ using UnityEngine.UI;
 
 public class NavigationManager : MonoBehaviour
 {
-    [Header("Screens")]
-    //[SerializeField] List<GameObject> screens = new();
     Canvas canvas;
     [SerializeField] Dictionary<string, GameObject> screenD = new Dictionary<string, GameObject>();
 
@@ -76,7 +74,7 @@ public class NavigationManager : MonoBehaviour
 
     private IEnumerator Delayed_Action(object target, float delay, AudioClip sfx)
     {
-        Utilities.PlaySoundAndDestroy(sfx);
+        SoundManager.PlaySoundAndDestroy(sfx);
         yield return new WaitForSeconds(delay);
 
         if (target is GameState gameState) gameManager.SetGameState(gameState);

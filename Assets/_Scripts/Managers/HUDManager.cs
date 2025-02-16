@@ -61,7 +61,7 @@ public class HUDManager : MonoBehaviour
         }
         else newBlowFace = null;
 
-        Utilities.PlaySoundAndDestroy(blowSFX);
+        SoundManager.PlaySoundAndDestroy(blowSFX);
 
         yield return new WaitForSeconds(.6f);
         SetBlowFaceOff(newBlowFace);

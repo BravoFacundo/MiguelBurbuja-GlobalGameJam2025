@@ -29,13 +29,16 @@ public class PlayerController : MonoBehaviour
     [Header("Sounds")]
     [SerializeField] AudioClip popSFX;
 
+    [Header("Prefabs")]
+    [SerializeField] GameObject blowObjectPrefab;
+
+    [Header("Local References")]
+    private Rigidbody2D rb;
+
     [Header("References")]
     [SerializeField] private LevelManager levelManager;
     [SerializeField] private HUDManager uiManager;
     [SerializeField] private MusicManager musicManager;
-
-    [Header("Local References")]
-    private Rigidbody2D rb;
 
     private void Awake()
     {
@@ -81,13 +84,13 @@ public class PlayerController : MonoBehaviour
         if (blowStamina >= blowCost && canBlow)
         {
             if (Input.GetKeyDown(KeyCode.LeftArrow))
-                Blow(Vector2.left);
+                Blow(Vector2.left, BlowDirection.Left);
             else if (Input.GetKeyDown(KeyCode.RightArrow))
-                Blow(Vector2.right);
+                Blow(Vector2.right, BlowDirection.Right);
             else if (Input.GetKeyDown(KeyCode.UpArrow))
-                Blow(Vector2.up);
+                Blow(Vector2.up, BlowDirection.Up);
             else if (Input.GetKeyDown(KeyCode.DownArrow))
-                Blow(Vector2.down);
+                Blow(Vector2.down, BlowDirection.Down);
         }
     }
     private void Handle_Collision()
@@ -105,17 +108,18 @@ public class PlayerController : MonoBehaviour
         uiManager.SetBlowBarValue(blowStamina);
     }
 
-    void Blow(Vector2 dir)
+    void Blow(Vector2 dir, BlowDirection blowDirection)
     {
         StartCoroutine(nameof(BlowCooldown));
-        
         rb.AddForce(dir * blowForce, ForceMode2D.Impulse);
-        uiManager.SetBlowFacesBlue();
         blowStamina -= blowCost;
 
-        uiManager.playerPos = transform;
-        uiManager.StartCoroutine("SetBlowFace", dir);
-        if (blowStamina <= blowCost) uiManager.SetBlowFacesRed(.35f);
+        GameObject newBlowObject = Instantiate(blowObjectPrefab, transform.position ,Quaternion.identity);
+        BlowObject newBlowObjectScript = newBlowObject.GetComponent<BlowObject>();
+        newBlowObjectScript.playerPos = transform;
+        newBlowObjectScript.blowDirection = blowDirection;
+        newBlowObjectScript.timeAlive = 0.75f;
+        if (blowStamina <= blowCost) newBlowObjectScript.startTired = true;
     }
     private IEnumerator BlowCooldown()
     {

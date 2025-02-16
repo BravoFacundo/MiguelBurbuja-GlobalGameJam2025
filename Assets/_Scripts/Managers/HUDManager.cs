@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 
 public class HUDManager : MonoBehaviour
 {
@@ -19,20 +18,16 @@ public class HUDManager : MonoBehaviour
     [SerializeField] AudioClip tiredSFX;
 
     [Header("References")]
-    [SerializeField] private Slider blowBar;
-    [SerializeField] TMP_Text playButtonText;
+    [SerializeField] private Slider blowBar;    
 
-    [Header("Resources")]
-    [SerializeField] private List<Sprite> spriteFaces = new();
+    [Header("Resources")] //
+    [SerializeField] private List<Sprite> spriteFaces = new(); //
 
     private void Start()
     {
         blowBar.value = 1;
         SetBlowFacesOff();
     }
-
-    public void NoPreviousProgress() => playButtonText.text = "Jugar";
-    public void HasPreviousProgress() => playButtonText.text = "Continuar";
 
     public IEnumerator SetBlowFace(Vector2 dir)
     {

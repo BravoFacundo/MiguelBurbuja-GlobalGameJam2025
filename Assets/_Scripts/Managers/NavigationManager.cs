@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class NavigationManager : MonoBehaviour
 {
@@ -17,6 +18,7 @@ public class NavigationManager : MonoBehaviour
 
     [Header("References")]
     GameManager gameManager;
+    [SerializeField] TMP_Text playButtonText;
 
     void Awake()
     {
@@ -39,6 +41,9 @@ public class NavigationManager : MonoBehaviour
         //screens = canvas.transform.Cast<Transform>().Select(child => child.gameObject).ToList();
         Utilities.DeactivateAllChildrens(canvas.transform);
     }
+
+    public void NoPreviousProgress() => playButtonText.text = "Jugar";
+    public void HasPreviousProgress() => playButtonText.text = "Continuar";
 
     private void Update()
     {

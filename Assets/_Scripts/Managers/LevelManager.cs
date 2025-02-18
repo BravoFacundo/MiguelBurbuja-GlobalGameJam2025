@@ -6,8 +6,6 @@ using UnityEngine;
 
 public class LevelManager : MonoBehaviour
 {
-    [Header("Data")]
-    public int currentLevel = 0;
 
     [Header("References")]
     [SerializeField] GameManager gameManager;
@@ -43,26 +41,24 @@ public class LevelManager : MonoBehaviour
         Destroy(playerPivot.gameObject);
         player.canMove = true;
     }
-    /// <summary>
-    /// limpia el grid y carga el siguiente nivel ..... si no hay mas niveles carga el win screen
-    /// </summary>
-    public void LoadLevel(int levelIndex)
+
+    public void LoadLevel(int levelNumber)
     {
+        int levelIndex = levelNumber - 1;
         Utilities.DeleteAllChildrens(grid);
         Instantiate(levelPrefabs[levelIndex], grid);
         StartCoroutine(SendPlayerToGrid());
-        //if (levelIndex != 1) StartCoroutine(SendPlayerToGrid());
     }
 
     public void PlayerReachedGoal()
     {
         SendPlayerToPool();
-        currentLevel++;
-        if (currentLevel == levelPrefabs.Count+1) gameManager.SetGameState(GameState.Win);
+        int currentLevel = gameManager.playerData.currentLevel;
+        if (currentLevel == levelPrefabs.Count) gameManager.SetGameState(GameState.Win);        
         else
         {
-            gameManager.SetLevelToLoad(currentLevel-1);
-            gameManager.SetGameState(GameState.Game);
+            gameManager.playerData.currentLevel++;
+            gameManager.SetGameState(GameState.Game);            
         }
     }
     public IEnumerator PlayerDie()

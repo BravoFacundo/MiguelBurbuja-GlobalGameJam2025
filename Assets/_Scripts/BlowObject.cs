@@ -16,6 +16,7 @@ public class BlowObject : MonoBehaviour
     [SerializeField] Color tiredColor;
     private Color startColor;
     private Color finalColor;
+    private Color whiteClear = new( 1, 1, 1, 0);
 
     [Header("Follow")]
     [SerializeField] float followSpeed = 5f;
@@ -46,13 +47,17 @@ public class BlowObject : MonoBehaviour
     {
         SetObjectValues();
 
-        if (blowSFX != null) audioSource.PlayOneShot(blowSFX);
-        StartCoroutine(FadeIn(timeAlive/2));
+        if (blowSFX != null)
+        {
+            if (!startTired) audioSource.PlayOneShot(blowSFX);
+            else audioSource.PlayOneShot(tiredSFX);
+        }
+        StartCoroutine(FadeIn(timeAlive/3));
     }
 
     private void Update()
     {
-        if (playerPos == null) return;
+        if (playerPos == null || playerPos.position.y > defaultOffset.y) return;
 
         float newX = followX ? Mathf.Lerp(transform.position.x, playerPos.position.x, Time.deltaTime * followSpeed) : transform.position.x;
         float newY = followY ? Mathf.Lerp(transform.position.y, playerPos.position.y, Time.deltaTime * followSpeed) : transform.position.y;
@@ -64,7 +69,7 @@ public class BlowObject : MonoBehaviour
     {
         foreach (SpriteRenderer sr in spriteRenderers)
         {
-            if (sr != null) sr.color = Color.clear;
+            if (sr != null) sr.color = Color.clear; 
         }
     }
     private void SetFlipX(bool flipValue)
@@ -129,11 +134,12 @@ public class BlowObject : MonoBehaviour
             elapsedTime += Time.deltaTime;
             float t = elapsedTime / duration;
             spriteRenderers[0].color = Color.Lerp(startColor, finalColor, t);
-            spriteRenderers[1].color = Color.Lerp(Color.clear, Color.white, t);
+            spriteRenderers[1].color = Color.Lerp(whiteClear, Color.white, t);
             yield return null;
         }
 
-        StartCoroutine(FadeOutAndDestroy(timeAlive/2));
+        yield return new WaitForSeconds(timeAlive / 3);
+        StartCoroutine(FadeOutAndDestroy(timeAlive/3));
     }
     private IEnumerator FadeOutAndDestroy(float duration)
     {
@@ -145,13 +151,12 @@ public class BlowObject : MonoBehaviour
             elapsedTime += Time.deltaTime;
             float t = elapsedTime / duration;
             spriteRenderers[0].color = Color.Lerp(startColor, Color.clear, t);
-            spriteRenderers[1].color = Color.Lerp(Color.white, Color.clear, t);
+            spriteRenderers[1].color = Color.Lerp(Color.white, whiteClear, t);
             yield return null;
         }
 
         Destroy(gameObject, timeAlive * .1f);
     }
-
 
     private void SnapToPlayer()
     {

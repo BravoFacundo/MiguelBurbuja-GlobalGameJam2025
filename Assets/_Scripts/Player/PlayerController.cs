@@ -7,6 +7,7 @@ public class PlayerController : MonoBehaviour
 {
     [Header("Configuration")]
     public bool canMove;
+    public bool usingMic;
     [SerializeField] float blowForce = 0.1f;
     [SerializeField] float blowCooldown = 0.5f;
     [SerializeField] float blowStamina = 250;
@@ -15,6 +16,15 @@ public class PlayerController : MonoBehaviour
     private bool canBlow = true;
     float maxStamina;
 
+    [Header("Microphone")]
+    [SerializeField] AudioSource audioSource;
+    [SerializeField] string selectedMicrophone;
+    float[] samples;
+    int sampleRate = 44100;
+    float threshold = 0.02f;
+    public Slider volumeSlider;
+    public Dropdown microphoneDropdown;
+
     [Header("Random Force")]
     float minInterval = 0.3f;
     float maxInterval = 1.0f;
@@ -22,9 +32,15 @@ public class PlayerController : MonoBehaviour
 
     [Header("Collision")]
     [SerializeField] LayerMask collisionLayer;
-    [SerializeField] float wallDetectionDistance = 1f;
+    [SerializeField] float wallDetectionDistance = .75f;
     [SerializeField] bool isCloseToWall;
     [SerializeField] bool lastCloseToWallValue;
+
+    [Header("Sprites")]
+    [SerializeField] Sprite defaultSprite;
+    [SerializeField] Sprite tenseSprite;
+    [SerializeField] Sprite deathSprite;
+    private SpriteRenderer spriteRenderer;
 
     [Header("Sounds")]
     [SerializeField] AudioClip popSFX;
@@ -45,10 +61,27 @@ public class PlayerController : MonoBehaviour
         GameObject managers = GameObject.FindGameObjectWithTag("Managers");       
         uiManager = managers.GetComponentInChildren<HUDManager>();
         musicManager = managers.GetComponentInChildren<MusicManager>();
-        
         levelManager = GameObject.FindWithTag("Levels").GetComponent<LevelManager>();
+
+        spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         rb = GetComponent<Rigidbody2D>();
+        audioSource = GetComponent<AudioSource>();
+        DetectMicrophone();
     }
+
+    void DetectMicrophone()
+    {
+        selectedMicrophone = PlayerPrefs.GetString("SelectedMicrophone", "");
+        if (!string.IsNullOrEmpty(selectedMicrophone)) StartMicrophone(selectedMicrophone);
+    }
+    void StartMicrophone(string micName)
+    {
+        if (Microphone.IsRecording(micName)) Microphone.End(micName);
+
+        audioSource.clip = Microphone.Start(micName, true, 1, 44100);
+        samples = new float[audioSource.clip.samples];
+    }
+
     private void Start()
     {
         lastCloseToWallValue = isCloseToWall;
@@ -62,7 +95,7 @@ public class PlayerController : MonoBehaviour
         if (canMove)
         {
             Handle_RandomForce();
-            Handle_Inputs();
+            Handle_InputModes();
         }
         Handle_BlowStamina();
         Handle_Collision();
@@ -79,18 +112,50 @@ public class PlayerController : MonoBehaviour
             nextForceTime = Random.Range(minInterval, maxInterval);
         }
     }
-    private void Handle_Inputs()
+    private void Handle_InputModes()
     {
         if (blowStamina >= blowCost && canBlow)
         {
-            if (Input.GetKeyDown(KeyCode.LeftArrow))
+            if (!usingMic) Handle_Inputs();
+            else Handle_MicInput();
+        }
+    }
+    private void Handle_Inputs()
+    {
+        if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A))
+            Blow(Vector2.left, BlowDirection.Left);
+        else if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D))
+            Blow(Vector2.right, BlowDirection.Right);
+        else if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W))
+            Blow(Vector2.up, BlowDirection.Up);
+        else if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.S))
+            Blow(Vector2.down, BlowDirection.Down);
+    }
+    private void Handle_MicInput()
+    {
+        if (audioSource.clip == null) return;
+        audioSource.clip.GetData(samples, 0);
+
+        float currentVolume = 0f;
+        for (int i = 0; i < samples.Length; i++)
+        {
+            currentVolume += Mathf.Abs(samples[i]);
+        }
+        currentVolume /= samples.Length;
+
+        if (currentVolume > threshold)
+        {
+            Debug.Log("Volumen actual: " + currentVolume);
+            Debug.Log("¡Se ha detectado una entrada de micrófono!");
+
+            if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A))
                 Blow(Vector2.left, BlowDirection.Left);
-            else if (Input.GetKeyDown(KeyCode.RightArrow))
+            else if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D))
                 Blow(Vector2.right, BlowDirection.Right);
-            else if (Input.GetKeyDown(KeyCode.UpArrow))
+            else if (Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.W))
                 Blow(Vector2.up, BlowDirection.Up);
-            else if (Input.GetKeyDown(KeyCode.DownArrow))
-                Blow(Vector2.down, BlowDirection.Down);
+            else if (Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.S))
+                Blow(Vector2.down, BlowDirection.Down);            
         }
     }
     private void Handle_Collision()
@@ -99,8 +164,16 @@ public class PlayerController : MonoBehaviour
         isCloseToWall = Physics2D.OverlapCircle(transform.position, wallDetectionDistance, collisionLayer) != null;
         if (prevState == isCloseToWall) return;
 
-        if (isCloseToWall) musicManager.EnableTenseTrack();
-        else musicManager.DisableTenseTrack();
+        if (isCloseToWall)
+        {
+            spriteRenderer.sprite = tenseSprite;
+            musicManager.EnableTenseTrack();
+        }
+        else
+        {
+            spriteRenderer.sprite = defaultSprite;
+            musicManager.DisableTenseTrack();
+        }
     }
     private void Handle_BlowStamina()
     {
@@ -114,7 +187,7 @@ public class PlayerController : MonoBehaviour
         rb.AddForce(dir * blowForce, ForceMode2D.Impulse);
         blowStamina -= blowCost;
 
-        GameObject newBlowObject = Instantiate(blowObjectPrefab, transform.position ,Quaternion.identity);
+        GameObject newBlowObject = Instantiate(blowObjectPrefab, transform.position , Quaternion.identity);
         BlowObject newBlowObjectScript = newBlowObject.GetComponent<BlowObject>();
         newBlowObjectScript.playerPos = transform;
         newBlowObjectScript.blowDirection = blowDirection;
@@ -132,7 +205,8 @@ public class PlayerController : MonoBehaviour
     {
         StartCoroutine(levelManager.PlayerDie());
         rb.constraints = RigidbodyConstraints2D.FreezePosition;
-        yield return new WaitForSeconds(.15f);
+        spriteRenderer.sprite = deathSprite;
+        yield return new WaitForSeconds(.4f);
         levelManager.SendPlayerToPool();
         SoundManager.PlaySoundAndDestroy(popSFX);
         yield return new WaitForSeconds(1f);
@@ -157,17 +231,14 @@ public class PlayerController : MonoBehaviour
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.layer == LayerMask.NameToLayer("Colliders"))
-        {
             StartCoroutine(nameof(Player_Die));
-        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Goal")) 
-            { StartCoroutine(nameof(Player_Win)); }
-        else if (collision.CompareTag("PowerUp")) 
-            { StartCoroutine(nameof(Player_Recharge), collision.transform.parent.gameObject); }
+        if (collision.CompareTag("Goal")) StartCoroutine(nameof(Player_Win));
+        else if (collision.CompareTag("PowerUp"))
+            StartCoroutine(nameof(Player_Recharge), collision.transform.parent.gameObject);
     }
     private void OnTriggerStay2D(Collider2D collision)
     {

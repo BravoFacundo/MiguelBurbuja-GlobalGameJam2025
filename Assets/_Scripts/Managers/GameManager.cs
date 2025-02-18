@@ -13,10 +13,8 @@ public class GameManager : MonoBehaviour
     [Header("Debug")]
     public GameState currentGameState;
     public string currentScreen;
-
-    [Header("Configuration")]
-    [SerializeField] private int levelToLoad;
-    [SerializeField] private bool startFromLevel;
+    public int currentLevel;
+    public PlayerData playerData;
 
     [Header("Local References")]
     [SerializeField] NavigationManager navigationManager;
@@ -28,32 +26,27 @@ public class GameManager : MonoBehaviour
 
     private readonly string filePath = Application.dataPath + "/PlayerDataFile.json";
 
-    private void Awake()
-    {
-        PlayerData playerData = LoadFromJson();
-        levelManager.currentLevel = playerData.currentLevel;
-    }
+    private void Awake() => playerData = LoadFromJson();
     private void Start() => SetGameState(currentGameState);
 
     public void SetGameState(GameState gameState)
     {
         currentGameState = gameState;
+        currentLevel = playerData.currentLevel;
 
         switch (gameState)
         {
             case GameState.Menu:
                 levelManager.gameObject.SetActive(false);
                 navigationManager.ActivateScreen("Menu");
+                if (playerData.currentLevel != 1) navigationManager.HasPreviousProgress();
                 musicManager.SetMusicTrack("Menu");
                 musicManager.DisableTenseTrack();
-                startFromLevel = false;
-                levelToLoad = 0;
                 break;
 
             case GameState.Game:
                 levelManager.gameObject.SetActive(true);
-                if (!startFromLevel) levelManager.LoadLevel(0);
-                else levelManager.LoadLevel(levelToLoad);
+                levelManager.LoadLevel(playerData.currentLevel);
                 navigationManager.ActivateScreen("Game");
                 musicManager.SetMusicTrack("Game");
                 break;
@@ -64,24 +57,12 @@ public class GameManager : MonoBehaviour
             case GameState.Win:
                 navigationManager.ActivateScreen("Win");
                 break;
-        }
-
-    }
-
-    public void SetLevelToLoad(int index)
-    {
-        startFromLevel = true;
-        levelToLoad = index;
-        levelManager.currentLevel = levelToLoad+1;
+        }        
     }
 
     public IEnumerator ExitGame()
     {
-        PlayerData currentData = new PlayerData
-        {
-            currentLevel = levelManager.currentLevel,
-        };
-        SaveToJson(currentData);
+        SaveToJson(playerData);
 
         Debug.Log("Exiting Game... Saving Progress");
         yield return new WaitForSeconds(.5f);
@@ -134,9 +115,10 @@ public class GameManager : MonoBehaviour
 
     private PlayerData CreateDefaultData()
     {
-        PlayerData defaultData = new PlayerData
+        PlayerData defaultData = new()
         {
-            currentLevel = 1
+            currentLevel = 1 ,
+            maxLevelReach = 1
         };
 
         SaveToJson(defaultData);

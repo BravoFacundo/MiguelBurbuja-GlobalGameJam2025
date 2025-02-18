@@ -11,18 +11,22 @@ public class NavigationManager : MonoBehaviour
     Canvas canvas;
     [SerializeField] Dictionary<string, GameObject> screenD = new Dictionary<string, GameObject>();
 
-    [Header("Buttons")]
+    [Header("Configuration")]
     [SerializeField] float pressDelay = 1f;
+
+    [Header("Sounds")]
     [SerializeField] AudioClip buttonSFX;
     [SerializeField] AudioClip exitSFX;
 
     [Header("References")]
-    GameManager gameManager;
     [SerializeField] TMP_Text playButtonText;
+    [SerializeField] TMP_Text TutorialButtonText;
+    
+    GameManager gameManager;
 
     void Awake()
     {
-        gameManager = GetComponentInParent<GameManager>();
+        gameManager = transform.parent.GetComponentInChildren<GameManager>();
         canvas = GameObject.FindGameObjectWithTag("Canvas").GetComponent<Canvas>();
         foreach (Transform child in canvas.transform)
         {
@@ -35,15 +39,16 @@ public class NavigationManager : MonoBehaviour
 
                 if (!screenD.ContainsKey(id)) screenD.Add(id, screen);
                 if (!screenD.ContainsKey(name)) screenD.Add(name, screen);
-                //Debug.Log($"ID: {id}, Screen: {name}");
             }
         }
-        //screens = canvas.transform.Cast<Transform>().Select(child => child.gameObject).ToList();
         Utilities.DeactivateAllChildrens(canvas.transform);
     }
 
-    public void NoPreviousProgress() => playButtonText.text = "Jugar";
-    public void HasPreviousProgress() => playButtonText.text = "Continuar";
+    public void HasPreviousProgress()
+    {
+        playButtonText.text = "Continuar";
+        TutorialButtonText.text = "Jugar";
+    }
 
     private void Update()
     {
@@ -64,8 +69,9 @@ public class NavigationManager : MonoBehaviour
         string key = screenIdentifier is int index ? index.ToString() : screenIdentifier.ToString();
         if (screenD.ContainsKey(key))
         {
-            screenD[key].SetActive(true);            
+            screenD[key].SetActive(true);
             string[] parts = screenD[key].name.Split('_');
+            Debug.Log(parts[1]);
             gameManager.currentScreen = parts[1];
         }
         else Debug.LogError($"Pantalla no encontrada: {screenIdentifier}");
@@ -98,8 +104,15 @@ public class NavigationManager : MonoBehaviour
     public void Button_Credits() => Delayed_Action("Credits", buttonSFX);
     public void Button_Next()
     {
-        if (gameManager.currentScreen == "Lore") Delayed_Action("Tutorial", buttonSFX);
-        else if (gameManager.currentScreen == "Tutorial") Delayed_Action(GameState.Game, buttonSFX);
+        if(gameManager.currentScreen == "Lore")
+        {
+            if (gameManager.playerData.maxLevelReach > 1)
+            {
+                Delayed_Action("Tutorial", buttonSFX);
+                return;
+            }
+        }
+        Delayed_Action(GameState.Game, buttonSFX);
     }
     public void Button_Back()
     {
@@ -107,9 +120,9 @@ public class NavigationManager : MonoBehaviour
         else Delayed_Action("Menu", buttonSFX);
     }
     public void Button_Exit() => StartCoroutine(gameManager.ExitGame());
-    public void Button_SelectLevel(int levelIndex)
+    public void Button_SelectLevel(int levelNumber)
     {
-        gameManager.SetLevelToLoad(levelIndex-1);
+        gameManager.playerData.currentLevel = levelNumber;
         Delayed_Action(GameState.Game, buttonSFX);
     }
 

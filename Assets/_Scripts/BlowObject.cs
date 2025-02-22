@@ -2,12 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum BlowDirection { Left, Right, Down, Up }
 public class BlowObject : MonoBehaviour
 {
     [Header("Config")]
     public Transform playerPos;
-    public BlowDirection blowDirection;
+    public Vector2 blowDirection;
     public bool startTired;
     public float timeAlive = 0.6f;
 
@@ -92,24 +91,25 @@ public class BlowObject : MonoBehaviour
         spriteRenderers[0].sprite = spriteFaces[randomIndex];
         spriteRenderers[1].sprite = spriteFacesW[randomIndex];
 
-        switch (blowDirection)
+        Vector2 direction = Vector2.left;
+        switch (direction)
         {
-            case BlowDirection.Left:
+            case var d when d == Vector2.left:
                 transform.position = defaultOffset;
-                followY = true;                
+                followY = true;
                 break;
-            case BlowDirection.Right:
+            case var d when d == Vector2.right:
                 transform.position = -defaultOffset;
                 followY = true;
                 SetFlipX(true);
                 break;
-            case BlowDirection.Up:
+            case var d when d == Vector2.up:
                 transform.position = -defaultOffset;
                 transform.rotation = Quaternion.Euler(0, 0, 90f);
                 followX = true;
                 SetFlipX(true);
                 break;
-            case BlowDirection.Down:
+            case var d when d == Vector2.down:
                 transform.position = defaultOffset;
                 transform.rotation = Quaternion.Euler(0, 0, 90f);
                 followX = true;

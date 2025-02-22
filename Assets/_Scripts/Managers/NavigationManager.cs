@@ -71,7 +71,7 @@ public class NavigationManager : MonoBehaviour
         {
             screenD[key].SetActive(true);
             string[] parts = screenD[key].name.Split('_');
-            Debug.Log(parts[1]);
+            //Debug.Log(parts[1]);
             gameManager.currentScreen = parts[1];
         }
         else Debug.LogError($"Pantalla no encontrada: {screenIdentifier}");

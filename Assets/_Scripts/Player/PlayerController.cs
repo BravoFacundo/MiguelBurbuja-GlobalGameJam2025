@@ -8,6 +8,7 @@ public class PlayerController : MonoBehaviour
     [Header("Configuration")]
     public bool canMove;
     public bool usingMic;
+    public bool micInput;
     [SerializeField] float blowForce = 0.1f;
     [SerializeField] float blowCooldown = 0.5f;
     [SerializeField] float blowStamina = 250;
@@ -15,15 +16,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float staminaRecoveryRate = 1;
     private bool canBlow = true;
     float maxStamina;
-
-    [Header("Microphone")]
-    [SerializeField] AudioSource audioSource;
-    [SerializeField] string selectedMicrophone;
-    float[] samples;
-    int sampleRate = 44100;
-    float threshold = 0.02f;
-    public Slider volumeSlider;
-    public Dropdown microphoneDropdown;
 
     [Header("Random Force")]
     float minInterval = 0.3f;
@@ -55,31 +47,21 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private LevelManager levelManager;
     [SerializeField] private HUDManager uiManager;
     [SerializeField] private MusicManager musicManager;
+    [SerializeField] ConfigurationManager micConfig;
 
     private void Awake()
     {
+        levelManager = GameObject.FindWithTag("Levels").GetComponent<LevelManager>();
         GameObject managers = GameObject.FindGameObjectWithTag("Managers");       
         uiManager = managers.GetComponentInChildren<HUDManager>();
         musicManager = managers.GetComponentInChildren<MusicManager>();
-        levelManager = GameObject.FindWithTag("Levels").GetComponent<LevelManager>();
+        micConfig = FindObjectOfType<ConfigurationManager>();
 
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         rb = GetComponent<Rigidbody2D>();
-        audioSource = GetComponent<AudioSource>();
-        DetectMicrophone();
-    }
 
-    void DetectMicrophone()
-    {
-        selectedMicrophone = PlayerPrefs.GetString("SelectedMicrophone", "");
-        if (!string.IsNullOrEmpty(selectedMicrophone)) StartMicrophone(selectedMicrophone);
-    }
-    void StartMicrophone(string micName)
-    {
-        if (Microphone.IsRecording(micName)) Microphone.End(micName);
-
-        audioSource.clip = Microphone.Start(micName, true, 1, 44100);
-        samples = new float[audioSource.clip.samples];
+        FindObjectOfType<ConfigurationManager>().OnMicrophoneInput += Handle_MicInput;
+        FindObjectOfType<ConfigurationManager>().OnMicrophoneNoInput += Handle_MicNoInput;
     }
 
     private void Start()
@@ -97,67 +79,10 @@ public class PlayerController : MonoBehaviour
             Handle_RandomForce();
             Handle_InputModes();
         }
-        Handle_BlowStamina();
         Handle_Collision();
+        Handle_BlowStamina();
     }
 
-    private void Handle_RandomForce()
-    {
-        nextForceTime -= Time.deltaTime;
-        if (nextForceTime <= 0f)
-        {
-            Vector2 randomDirection = new Vector2(Random.Range(-1f, 1f), Random.Range(-1f, 1f)).normalized;
-            rb.AddForce(.1f * blowForce * randomDirection, ForceMode2D.Impulse);
-
-            nextForceTime = Random.Range(minInterval, maxInterval);
-        }
-    }
-    private void Handle_InputModes()
-    {
-        if (blowStamina >= blowCost && canBlow)
-        {
-            if (!usingMic) Handle_Inputs();
-            else Handle_MicInput();
-        }
-    }
-    private void Handle_Inputs()
-    {
-        if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A))
-            Blow(Vector2.left, BlowDirection.Left);
-        else if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D))
-            Blow(Vector2.right, BlowDirection.Right);
-        else if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W))
-            Blow(Vector2.up, BlowDirection.Up);
-        else if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.S))
-            Blow(Vector2.down, BlowDirection.Down);
-    }
-    private void Handle_MicInput()
-    {
-        if (audioSource.clip == null) return;
-        audioSource.clip.GetData(samples, 0);
-
-        float currentVolume = 0f;
-        for (int i = 0; i < samples.Length; i++)
-        {
-            currentVolume += Mathf.Abs(samples[i]);
-        }
-        currentVolume /= samples.Length;
-
-        if (currentVolume > threshold)
-        {
-            Debug.Log("Volumen actual: " + currentVolume);
-            Debug.Log("¡Se ha detectado una entrada de micrófono!");
-
-            if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A))
-                Blow(Vector2.left, BlowDirection.Left);
-            else if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D))
-                Blow(Vector2.right, BlowDirection.Right);
-            else if (Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.W))
-                Blow(Vector2.up, BlowDirection.Up);
-            else if (Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.S))
-                Blow(Vector2.down, BlowDirection.Down);            
-        }
-    }
     private void Handle_Collision()
     {
         bool prevState = isCloseToWall;
@@ -175,16 +100,59 @@ public class PlayerController : MonoBehaviour
             musicManager.DisableTenseTrack();
         }
     }
+
+    private void Handle_RandomForce()
+    {
+        nextForceTime -= Time.deltaTime;
+        if (nextForceTime <= 0f)
+        {
+            Vector2 randomDirection = new Vector2(Random.Range(-1f, 1f), Random.Range(-1f, 1f)).normalized;
+            rb.AddForce(.1f * blowForce * randomDirection, ForceMode2D.Impulse);
+
+            nextForceTime = Random.Range(minInterval, maxInterval);
+        }
+    }
+
     private void Handle_BlowStamina()
     {
         if (blowStamina <= maxStamina) blowStamina += staminaRecoveryRate;
         uiManager.SetBlowBarValue(blowStamina);
     }
 
-    void Blow(Vector2 dir, BlowDirection blowDirection)
+    private void Handle_InputModes()
+    {
+        if (blowStamina >= blowCost && canBlow) 
+        {
+            Handle_Inputs();
+        }
+    }
+    private void Handle_Inputs()
+    {
+        if (!usingMic)
+        {
+            if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A)) Blow(Vector2.left);
+            else if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D)) Blow(Vector2.right);
+            else if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W)) Blow(Vector2.up);
+            else if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.S)) Blow(Vector2.down);
+        }
+        else
+        {
+            if (micInput)
+            {
+                if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A)) Blow(Vector2.left);
+                else if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D)) Blow(Vector2.right);
+                else if (Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.W)) Blow(Vector2.up);
+                else if (Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.S)) Blow(Vector2.down);
+            }            
+        }
+    }
+    private void Handle_MicInput() => micInput = true;
+    private void Handle_MicNoInput() => micInput = false;
+
+    void Blow(Vector2 blowDirection)
     {
         StartCoroutine(nameof(BlowCooldown));
-        rb.AddForce(dir * blowForce, ForceMode2D.Impulse);
+        rb.AddForce(blowDirection * blowForce, ForceMode2D.Impulse);
         blowStamina -= blowCost;
 
         GameObject newBlowObject = Instantiate(blowObjectPrefab, transform.position , Quaternion.identity);
@@ -196,10 +164,12 @@ public class PlayerController : MonoBehaviour
     }
     private IEnumerator BlowCooldown()
     {
-        canBlow = false;
+        canBlow = false; micInput = false;
         yield return new WaitForSeconds(blowCooldown);
         canBlow = true;
     }
+
+    //---------- PLAYER STATES ------------------------------------------------------------------------------------------------------------------
 
     private IEnumerator Player_Die()
     {
@@ -211,6 +181,7 @@ public class PlayerController : MonoBehaviour
         SoundManager.PlaySoundAndDestroy(popSFX);
         yield return new WaitForSeconds(1f);
     }
+
     private IEnumerator Player_Win()
     {
         yield return new WaitForSeconds(.25f);
@@ -218,6 +189,7 @@ public class PlayerController : MonoBehaviour
         rb.constraints = RigidbodyConstraints2D.FreezePosition;
         levelManager.PlayerReachedGoal();
     }
+
     private IEnumerator Player_Recharge(GameObject inhaler)
     {
         yield return new WaitForSeconds(.25f);

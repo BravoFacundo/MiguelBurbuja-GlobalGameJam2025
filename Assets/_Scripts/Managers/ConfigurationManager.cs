@@ -6,22 +6,50 @@ using TMPro;
 
 public class ConfigurationManager : MonoBehaviour
 {
+    GameManager gameManager;
+
     //[Header("Language")]
 
     //[Header("Sound")]
-    
+
+    [Header("Microphone Debug")]
+    [SerializeField] TMP_Dropdown debugDropdown;
+    [SerializeField] Slider debugSlider;
+    [SerializeField] Button debugButton;
+
     [Header("Microphone")]
     [SerializeField] string selectedMicrophone;
-    [SerializeField] TMP_Dropdown microphoneDropdown;
-    [SerializeField] Slider sensitivitySlider;
-    [SerializeField] Button calibrateButton;
-    private float sensitivityThreshold = 0.1f;
+    public bool hasMics = true;
+    public float gainMultiplier = 1.0f;
+    public float threshold = 0.01f;
+    private bool wasBelowThreshold = true;
+
+    public event System.Action OnMicrophoneInput;
+    public event System.Action OnMicrophoneNoInput;
+
+    string[] microphones;
     private AudioClip micClip;
+    private bool micActive = false;
     private bool isCalibrating = false;
+    int sampleRate = 1024;
+
+    [Header("Microphone References")]
+    [SerializeField] Toggle micToggle;
+    [SerializeField] TMP_Dropdown micDropdown;
+    [SerializeField] Slider volumeSlider;
+    [SerializeField] Slider gainSlider;
+    [SerializeField] Button calibrateButton;
 
     void Start()
     {
+        gameManager = transform.parent.GetComponentInChildren<GameManager>();
+        
         StartMicrophoneConfiguration();
+    }
+
+    private void Update()
+    {
+        Debug_MicConfiguration();
     }
 
     //---------- LANGUAGE ------------------------------------------------------------------------------------------------------------------
@@ -33,106 +61,131 @@ public class ConfigurationManager : MonoBehaviour
     void StartMicrophoneConfiguration()
     {
         DetectMicrophones();
-        LoadSettings();
-        if (calibrateButton != null)
-            calibrateButton.onClick.AddListener(CalibrateMicrophone);
+        Debug_Start();
 
-        if (sensitivitySlider != null)
-            sensitivitySlider.onValueChanged.AddListener(ChangeSensitivity);
+        micToggle.onValueChanged.AddListener(ToggleMicrophone);
+        gainSlider.onValueChanged.AddListener(ChangeMicrophoneGain);
+        calibrateButton.onClick.AddListener(ToggleCalibration);
+
+        gainMultiplier = PlayerPrefs.GetFloat("GainMultiplier", gainMultiplier);
+        threshold = PlayerPrefs.GetFloat("Threshold", threshold);
+        gainSlider.value = gainMultiplier;
+        volumeSlider.value = threshold;
     }
 
     void DetectMicrophones()
     {
-        string[] microphones = Microphone.devices;
+        microphones = Microphone.devices;        
         if (microphones.Length == 0)
         {
             Debug.LogError("No se encontraron micrófonos en el sistema.");
+            hasMics = false;
             return;
         }
-
-        microphoneDropdown.ClearOptions();
-        microphoneDropdown.AddOptions(new System.Collections.Generic.List<string>(microphones));
-
         selectedMicrophone = PlayerPrefs.GetString("SelectedMicrophone", microphones[0]);
-        microphoneDropdown.value = System.Array.IndexOf(microphones, selectedMicrophone);
-        microphoneDropdown.onValueChanged.AddListener(ChangeMicrophone);
+        StartMicrophone();
+    }
+    void Debug_Start()
+    {
+        debugDropdown.ClearOptions();
+        debugDropdown.AddOptions(new System.Collections.Generic.List<string>(microphones));
+        debugDropdown.value = System.Array.IndexOf(microphones, selectedMicrophone);
+        debugDropdown.onValueChanged.AddListener(ChangeMicrophone);
+        debugButton.image.color = Color.red;
     }
 
-    void ChangeMicrophone(int index)
+    void Debug_MicConfiguration()
     {
-        string[] microphones = Microphone.devices;
-        if (index >= 0 && index < microphones.Length)
+        if (!micActive) return;
+
+        float volume = GetMicVolume() * gainMultiplier;
+        debugSlider.value = Mathf.Lerp(debugSlider.value, volume, Time.deltaTime * 10);
+        volumeSlider.value = debugSlider.value;
+
+        bool isAboveThreshold = volume > threshold;
+        debugButton.image.color = isAboveThreshold ? Color.green : Color.red;
+
+        if (isAboveThreshold && wasBelowThreshold)
         {
-            selectedMicrophone = microphones[index];
-            PlayerPrefs.SetString("SelectedMicrophone", selectedMicrophone);
-            PlayerPrefs.Save();
+            Debug.Log("Mic Input");
+            OnMicrophoneInput.Invoke();
+            wasBelowThreshold = false;
+        }
+        else if (!isAboveThreshold && !wasBelowThreshold)
+        {
+            Debug.Log("Mic No Input");
+            OnMicrophoneNoInput.Invoke();
+            wasBelowThreshold = true;
         }
     }
 
-    void ChangeSensitivity(float value)
+    public void StartMicrophone()
     {
-        sensitivityThreshold = value;
-        PlayerPrefs.SetFloat("SensitivityThreshold", sensitivityThreshold);
-        PlayerPrefs.Save();
+        if (micClip == null || !micActive)
+        {
+            micClip = Microphone.Start(selectedMicrophone, true, 1, sampleRate);
+            micActive = true;
+        }
     }
-    void LoadSettings()
+    public void StopMicrophone()
     {
-        sensitivityThreshold = PlayerPrefs.GetFloat("SensitivityThreshold", 0.1f);
-        if (sensitivitySlider != null)
-            sensitivitySlider.value = sensitivityThreshold;
-    }
-
-    public void CalibrateMicrophone()
-    {
-        if (isCalibrating) return;
-
-        isCalibrating = true;
-        Debug.Log("Calibrando micrófono...");
-
-        StartCoroutine(CalibrationRoutine());
-    }
-    private IEnumerator CalibrationRoutine()
-    {
-        if (Microphone.IsRecording(selectedMicrophone))
+        if (micActive)
+        {
             Microphone.End(selectedMicrophone);
-
-        micClip = Microphone.Start(selectedMicrophone, true, 2, 44100);
-        yield return new WaitForSeconds(2);
-
-        float maxVolume = GetAverageVolume(micClip);
-        sensitivityThreshold = Mathf.Clamp(maxVolume * 2, 0.05f, 1f); // Ajusta el umbral según el ruido detectado
-
-        Debug.Log($"Calibración completada. Nuevo umbral: {sensitivityThreshold}");
-
-        if (sensitivitySlider != null)
-            sensitivitySlider.value = sensitivityThreshold;
-
-        PlayerPrefs.SetFloat("SensitivityThreshold", sensitivityThreshold);
-        PlayerPrefs.Save();
-
-        isCalibrating = false;
+            micActive = false;
+        }
     }
-    private float GetAverageVolume(AudioClip clip)
+    public void ChangeMicrophone(int index)
     {
-        float[] samples = new float[clip.samples * clip.channels];
-        clip.GetData(samples, 0);
+        StopMicrophone();
+        selectedMicrophone = Microphone.devices[index];
+        StartMicrophone();
+    }
+    public void ToggleMicrophone(bool isOn)
+    {
+        if (isOn) StartMicrophone(); else StopMicrophone();
+    }
+    public void SetMicrophoneThreshold(float value)
+    {
+        threshold = value;
+        PlayerPrefs.SetFloat("Threshold", threshold);
+    }
+    public void ChangeMicrophoneGain(float value)
+    {
+        gainMultiplier = value;
+        PlayerPrefs.SetFloat("GainMultiplier", gainMultiplier);
+    }
+
+    public void ToggleCalibration()
+    {
+        isCalibrating = !isCalibrating;
+        volumeSlider.interactable = isCalibrating;
+        if (isCalibrating)
+        {
+            volumeSlider.handleRect.gameObject.SetActive(true);
+            volumeSlider.onValueChanged.AddListener(SetMicrophoneThreshold);
+        }
+        else
+        {
+            volumeSlider.handleRect.gameObject.SetActive(false);
+            volumeSlider.onValueChanged.RemoveListener(SetMicrophoneThreshold);
+        }
+    }
+
+    float GetMicVolume()
+    {
+        if (micClip == null) return 0f;
+
+        float[] samples = new float[sampleRate];
+        micClip.GetData(samples, 0);
 
         float sum = 0f;
         foreach (float sample in samples)
         {
-            sum += Mathf.Abs(sample);
+            sum += sample * sample;
         }
 
-        return sum / samples.Length;
-    }
-
-    public float GetSensitivityThreshold()
-    {
-        return sensitivityThreshold;
-    }
-    public string GetSelectedMicrophone()
-    {
-        return selectedMicrophone;
+        return Mathf.Sqrt(sum / samples.Length);
     }
 
 }

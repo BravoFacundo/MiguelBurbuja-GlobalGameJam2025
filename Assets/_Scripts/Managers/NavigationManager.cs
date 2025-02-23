@@ -9,7 +9,7 @@ using TMPro;
 public class NavigationManager : MonoBehaviour
 {
     Canvas canvas;
-    [SerializeField] Dictionary<string, GameObject> screenD = new Dictionary<string, GameObject>();
+    Dictionary<string, GameObject> screenD = new();
 
     [Header("Configuration")]
     [SerializeField] float pressDelay = 1f;
@@ -28,6 +28,33 @@ public class NavigationManager : MonoBehaviour
     {
         gameManager = transform.parent.GetComponentInChildren<GameManager>();
         canvas = GameObject.FindGameObjectWithTag("Canvas").GetComponent<Canvas>();
+        
+        GetScreens(canvas);
+        Utilities.DeactivateAllChildrens(canvas.transform);
+    }
+
+    private void Update() => Handle_Inputs();
+
+    //---------- INPUTS ------------------------------------------------------------------------------------------------------------------
+
+    private void Handle_Inputs()
+    {
+        if (Input.anyKeyDown)
+        {
+            if (gameManager.currentGameState == GameState.Lose)
+                Delayed_Action(GameState.Game, buttonSFX);
+            else if (gameManager.currentGameState != GameState.Menu)
+            {
+                if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.P))
+                    Delayed_Action(GameState.Menu, exitSFX);
+            }
+        }
+    }
+
+    //---------- SCREENS ------------------------------------------------------------------------------------------------------------------
+
+    private void GetScreens(Canvas canvas)
+    {
         foreach (Transform child in canvas.transform)
         {
             GameObject screen = child.gameObject;
@@ -41,26 +68,7 @@ public class NavigationManager : MonoBehaviour
                 if (!screenD.ContainsKey(name)) screenD.Add(name, screen);
             }
         }
-        Utilities.DeactivateAllChildrens(canvas.transform);
     }
-
-    public void HasPreviousProgress()
-    {
-        playButtonText.text = "Continuar";
-        TutorialButtonText.text = "Jugar";
-    }
-
-    private void Update()
-    {
-        Handle_Inputs();
-    }
-    private void Handle_Inputs()
-    {
-        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.P))
-            gameManager.SetGameState(GameState.Menu);
-    }
-
-    //---------- SCREENS ------------------------------------------------------------------------------------------------------------------
 
     public void ActivateScreen(object screenIdentifier)
     {
@@ -70,19 +78,16 @@ public class NavigationManager : MonoBehaviour
         if (screenD.ContainsKey(key))
         {
             screenD[key].SetActive(true);
-            string[] parts = screenD[key].name.Split('_');
-            //Debug.Log(parts[1]);
+            string[] parts = screenD[key].name.Split('_'); //Debug.Log(parts[1]);
             gameManager.currentScreen = parts[1];
         }
         else Debug.LogError($"Pantalla no encontrada: {screenIdentifier}");
     }
 
-
-    //---------- BUTTONS ------------------------------------------------------------------------------------------------------------------
+    //---------- ACTIONS ------------------------------------------------------------------------------------------------------------------
 
     private void Delayed_Action(object target, AudioClip sfx)
-    => StartCoroutine(Delayed_Action(target, pressDelay, sfx));
-
+        => StartCoroutine(Delayed_Action(target, pressDelay, sfx));
     private IEnumerator Delayed_Action(object target, float delay, AudioClip sfx)
     {
         SoundManager.PlaySoundAndDestroy(sfx);
@@ -98,6 +103,8 @@ public class NavigationManager : MonoBehaviour
         else Debug.LogError($"Tipo de parámetro no válido en Delayed_Action: {target}");
     }
 
+    //---------- BUTTONS ------------------------------------------------------------------------------------------------------------------
+    
     public void Button_Play() => Delayed_Action("Lore", buttonSFX);
     public void Button_LevelSelector() => Delayed_Action("LevelSelector", buttonSFX);
     public void Button_Configuration() => Delayed_Action("Configuration", buttonSFX);
@@ -126,8 +133,13 @@ public class NavigationManager : MonoBehaviour
         Delayed_Action(GameState.Game, buttonSFX);
     }
 
-
     public void Button_Continue() => Delayed_Action(GameState.Game, buttonSFX);
     public void Button_Retry() => Delayed_Action(GameState.Game, buttonSFX);
+
+    public void HasPreviousProgress()
+    {
+        playButtonText.text = "Continuar";
+        TutorialButtonText.text = "Jugar";
+    }
 
 }

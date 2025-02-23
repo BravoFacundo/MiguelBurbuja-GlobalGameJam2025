@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System;
 
 public class ConfigurationManager : MonoBehaviour
 {
@@ -24,8 +25,7 @@ public class ConfigurationManager : MonoBehaviour
     public float threshold = 0.01f;
     private bool wasBelowThreshold = true;
 
-    public event System.Action OnMicrophoneInput;
-    public event System.Action OnMicrophoneNoInput;
+    public event Action<bool> OnMicrophoneStateChanged;
 
     string[] microphones;
     private AudioClip micClip;
@@ -105,18 +105,12 @@ public class ConfigurationManager : MonoBehaviour
         bool isAboveThreshold = volume > threshold;
         debugButton.image.color = isAboveThreshold ? Color.green : Color.red;
 
-        if (isAboveThreshold && wasBelowThreshold)
+        if (isAboveThreshold != wasBelowThreshold)
         {
-            Debug.Log("Mic Input");
-            OnMicrophoneInput.Invoke();
-            wasBelowThreshold = false;
+            OnMicrophoneStateChanged?.Invoke(isAboveThreshold);
+            wasBelowThreshold = isAboveThreshold;
         }
-        else if (!isAboveThreshold && !wasBelowThreshold)
-        {
-            Debug.Log("Mic No Input");
-            OnMicrophoneNoInput.Invoke();
-            wasBelowThreshold = true;
-        }
+
     }
 
     public void StartMicrophone()

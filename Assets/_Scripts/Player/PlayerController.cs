@@ -60,8 +60,7 @@ public class PlayerController : MonoBehaviour
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         rb = GetComponent<Rigidbody2D>();
 
-        FindObjectOfType<ConfigurationManager>().OnMicrophoneInput += Handle_MicInput;
-        FindObjectOfType<ConfigurationManager>().OnMicrophoneNoInput += Handle_MicNoInput;
+        FindObjectOfType<ConfigurationManager>().OnMicrophoneStateChanged += Handle_MicState;
     }
 
     private void Start()
@@ -146,8 +145,7 @@ public class PlayerController : MonoBehaviour
             }            
         }
     }
-    private void Handle_MicInput() => micInput = true;
-    private void Handle_MicNoInput() => micInput = false;
+    private void Handle_MicState(bool isInputActive) => micInput = isInputActive;
 
     void Blow(Vector2 blowDirection)
     {

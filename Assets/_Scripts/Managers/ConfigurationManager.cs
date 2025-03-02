@@ -99,7 +99,7 @@ public class ConfigurationManager : MonoBehaviour
         if (!micActive) return;
 
         float volume = GetMicVolume() * gainMultiplier;
-        debugSlider.value = Mathf.Lerp(debugSlider.value, volume, Time.deltaTime * 10);
+        debugSlider.value = volume;
         volumeSlider.value = debugSlider.value;
 
         bool isAboveThreshold = volume > threshold;

@@ -5,7 +5,7 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public enum GameState { Menu, Game, Lose, Win }
+public enum GameState { Menu, Game, Lose, Win, Language }
 
 public class GameManager : MonoBehaviour
 {
@@ -28,6 +28,8 @@ public class GameManager : MonoBehaviour
 
     private void Awake() => playerData = LoadFromJson();
     private void Start() => SetGameState(currentGameState);
+
+    //---------- GAME STATES ------------------------------------------------------------------------------------------------------------------
 
     public void SetGameState(GameState gameState)
     {
@@ -57,20 +59,23 @@ public class GameManager : MonoBehaviour
             case GameState.Win:
                 navigationManager.ActivateScreen("Win");
                 break;
+
+            case GameState.Language:
+                navigationManager.ActivateScreen("Language");
+                break;
         }        
     }
 
     public IEnumerator ExitGame()
     {
         SaveToJson(playerData);
-
         Debug.Log("Exiting Game... Saving Progress");
         yield return new WaitForSeconds(.5f);
         Application.Quit();
     }
 
     //---------- SAVE DATA ------------------------------------------------------------------------------------------------------------------
-    
+
     private void SaveToJson(PlayerData dataToSave)
     {
         try

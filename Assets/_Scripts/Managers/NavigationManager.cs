@@ -23,10 +23,12 @@ public class NavigationManager : MonoBehaviour
     [SerializeField] TMP_Text TutorialButtonText;
     
     GameManager gameManager;
+    LanguageManager languageManager;
 
     void Awake()
     {
         gameManager = transform.parent.GetComponentInChildren<GameManager>();
+        languageManager = transform.parent.GetComponentInChildren<LanguageManager>();
         canvas = GameObject.FindGameObjectWithTag("Canvas").GetComponent<Canvas>();
         
         GetScreens(canvas);
@@ -104,11 +106,13 @@ public class NavigationManager : MonoBehaviour
     }
 
     //---------- BUTTONS ------------------------------------------------------------------------------------------------------------------
-    
+
     public void Button_Play() => Delayed_Action("Lore", buttonSFX);
     public void Button_LevelSelector() => Delayed_Action("LevelSelector", buttonSFX);
     public void Button_Configuration() => Delayed_Action("Configuration", buttonSFX);
     public void Button_Credits() => Delayed_Action("Credits", buttonSFX);
+    public void Button_Retry() => Delayed_Action(GameState.Game, buttonSFX);
+    public void Button_Continue() => Delayed_Action(GameState.Game, buttonSFX);
     public void Button_Next()
     {
         if(gameManager.currentScreen == "Lore")
@@ -125,21 +129,32 @@ public class NavigationManager : MonoBehaviour
     {
         if (gameManager.currentScreen == "Tutorial") Delayed_Action("Lore", buttonSFX);
         else Delayed_Action("Menu", buttonSFX);
-    }
-    public void Button_Exit() => StartCoroutine(gameManager.ExitGame());
+    }    
     public void Button_SelectLevel(int levelNumber)
     {
         gameManager.playerData.currentLevel = levelNumber;
         Delayed_Action(GameState.Game, buttonSFX);
     }
+    public void Button_Exit() => StartCoroutine(gameManager.ExitGame());
 
-    public void Button_Continue() => Delayed_Action(GameState.Game, buttonSFX);
-    public void Button_Retry() => Delayed_Action(GameState.Game, buttonSFX);
 
+    public void Button_LanguageSelection(int languageID)
+    {
+        languageManager.SetLanguage(languageID);
+        Delayed_Action(GameState.Menu, buttonSFX);
+    }
     public void HasPreviousProgress()
     {
-        playButtonText.text = "Continuar";
-        TutorialButtonText.text = "Jugar";
+        if (languageManager.currentLanguage == 0)
+        {
+            playButtonText.text = "Continue";
+            TutorialButtonText.text = "Play";
+        }
+        else
+        {
+            playButtonText.text = "Continuar";
+            TutorialButtonText.text = "Jugar";
+        }
     }
 
 }

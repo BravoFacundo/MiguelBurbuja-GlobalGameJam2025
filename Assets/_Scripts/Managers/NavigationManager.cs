@@ -141,7 +141,7 @@ public class NavigationManager : MonoBehaviour
     public void Button_LanguageSelection(int languageID)
     {
         languageManager.SetLanguage(languageID);
-        Delayed_Action(GameState.Menu, buttonSFX);
+        Delayed_Action(gameManager.currentScreen, buttonSFX);
     }
     public void HasPreviousProgress()
     {

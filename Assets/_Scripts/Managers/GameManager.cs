@@ -62,6 +62,7 @@ public class GameManager : MonoBehaviour
 
             case GameState.Language:
                 navigationManager.ActivateScreen("Language");
+                currentScreen = "Menu";
                 break;
         }        
     }

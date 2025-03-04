@@ -38,7 +38,7 @@ public class LanguageManager : MonoBehaviour
         TextAsset csvFile = Resources.Load<TextAsset>(csvFileName);
         if (csvFile == null)
         {
-            Debug.LogError($"No se encontró el archivo CSV en Resources: {csvFileName}.csv");
+            Debug.LogError($"CSV File not found in: {csvFileName}.csv");
             return;
         }
 
@@ -75,8 +75,8 @@ public class LanguageManager : MonoBehaviour
         foreach (var text in texts)
         {
             string key = text.transform.parent != null ? text.transform.parent.name : text.gameObject.name;
-            string englishText = text.text; // Tomamos el texto actual (en inglés) del componente TextMeshProUGUI
-            lines.Add($"{key},{englishText},"); // Añadimos la key y el texto en inglés vacío para la columna en español
+            string englishText = text.text;
+            lines.Add($"{key},{englishText},");
         }
 
         File.WriteAllLines(filePath, lines);

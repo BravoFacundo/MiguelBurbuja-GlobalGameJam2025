@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Audio;
 using TMPro;
 using System;
 
@@ -9,16 +10,12 @@ public class ConfigurationManager : MonoBehaviour
 {
     GameManager gameManager;
 
-    //[Header("Language")]
-
-    //[Header("Sound")]
-
     [Header("Microphone Debug")]
     [SerializeField] TMP_Dropdown debugDropdown;
     [SerializeField] Slider debugSlider;
     [SerializeField] Button debugButton;
 
-    [Header("Microphone")]
+    [Header("Microphone Settings")]
     [SerializeField] string selectedMicrophone;
     public bool hasMics = true;
     public float gainMultiplier = 1.0f;
@@ -40,21 +37,26 @@ public class ConfigurationManager : MonoBehaviour
     [SerializeField] Slider gainSlider;
     [SerializeField] Button calibrateButton;
 
+    [Header("Sound Settings")]
+    [SerializeField] AudioMixer audioMixer;
+    [SerializeField] Slider masterSlider;
+    [SerializeField] Slider sfxSlider;
+    [SerializeField] Slider musicSlider;
+
+    //[Header("Language")]
+
     void Start()
     {
         gameManager = transform.parent.GetComponentInChildren<GameManager>();
-        
+
         StartMicrophoneConfiguration();
+        StartSoundConfiguration();
     }
 
     private void Update()
     {
         Debug_MicConfiguration();
     }
-
-    //---------- LANGUAGE ------------------------------------------------------------------------------------------------------------------
-
-    //---------- SOUND ------------------------------------------------------------------------------------------------------------------
 
     //---------- MICROPHONE ------------------------------------------------------------------------------------------------------------------
 
@@ -181,5 +183,33 @@ public class ConfigurationManager : MonoBehaviour
 
         return Mathf.Sqrt(sum / samples.Length);
     }
+
+    //---------- SOUND ------------------------------------------------------------------------------------------------------------------
+
+    void StartSoundConfiguration()
+    {
+        LoadVolume("MasterVolume", masterSlider);
+        LoadVolume("SFXVolume", sfxSlider);
+        LoadVolume("MusicVolume", musicSlider);
+
+        masterSlider.onValueChanged.AddListener(value => SetVolume("MasterVolume", value));
+        sfxSlider.onValueChanged.AddListener(value => SetVolume("SFXVolume", value));
+        musicSlider.onValueChanged.AddListener(value => SetVolume("MusicVolume", value));
+    }
+
+    private void LoadVolume(string parameterName, Slider slider)
+    {
+        float value = PlayerPrefs.GetFloat(parameterName, 1f);
+        slider.value = value;
+        SetVolume(parameterName, value);
+    }
+    private void SetVolume(string parameterName, float value)
+    {
+        float volume = (value > 0.0001f) ? Mathf.Log10(value) * 20 : -80f;
+        audioMixer.SetFloat(parameterName, volume);
+        PlayerPrefs.SetFloat(parameterName, value);
+    }
+
+    //---------- LANGUAGE ------------------------------------------------------------------------------------------------------------------
 
 }

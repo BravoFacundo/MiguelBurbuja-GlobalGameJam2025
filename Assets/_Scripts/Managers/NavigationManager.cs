@@ -137,7 +137,6 @@ public class NavigationManager : MonoBehaviour
     }
     public void Button_Exit() => StartCoroutine(gameManager.ExitGame());
 
-
     public void Button_LanguageSelection(int languageID)
     {
         languageManager.SetLanguage(languageID);

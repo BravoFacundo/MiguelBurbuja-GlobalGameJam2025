@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Audio;
 
 public class MusicManager : MonoBehaviour
 {
@@ -10,6 +11,7 @@ public class MusicManager : MonoBehaviour
     [Header("Configuration")]
     [SerializeField] float startVolume = .5f;
     [SerializeField] float transitionDuration = 0.25f;
+    [SerializeField] AudioMixerGroup musicGroup;
 
     [Header("Music Tracks")]
     [SerializeField] List<AudioClip> musicTracks;
@@ -24,6 +26,7 @@ public class MusicManager : MonoBehaviour
             audioSources[i].clip = musicTracks[i];
             audioSources[i].loop = true;
             audioSources[i].playOnAwake = false;
+            audioSources[i].outputAudioMixerGroup = musicGroup;
             audioSources[i].volume = (i == currentTrackIndex) ? startVolume : 0f;
             audioSources[i].Play();
         }

@@ -91,8 +91,7 @@ public class BlowObject : MonoBehaviour
         spriteRenderers[0].sprite = spriteFaces[randomIndex];
         spriteRenderers[1].sprite = spriteFacesW[randomIndex];
 
-        Vector2 direction = Vector2.left;
-        switch (direction)
+        switch (blowDirection)
         {
             case var d when d == Vector2.left:
                 transform.position = defaultOffset;

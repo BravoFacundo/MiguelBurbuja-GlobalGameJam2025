@@ -11,13 +11,16 @@ public class ConfigurationManager : MonoBehaviour
     GameManager gameManager;
 
     [Header("Microphone Debug")]
-    [SerializeField] TMP_Dropdown debugDropdown;
-    [SerializeField] Slider debugSlider;
-    [SerializeField] Button debugButton;
+    [SerializeField] bool debugMode = false;
+    [SerializeField] Canvas debugCanvas;    
+    private TMP_Dropdown debugDropdown;
+    private Slider debugSlider;
+    private Button debugButton;
 
     [Header("Microphone Settings")]
+    public bool micEnabled = false;
     [SerializeField] string selectedMicrophone;
-    public bool hasMics = true;
+    private bool hasMics = true;
     public float gainMultiplier = 1.0f;
     public float threshold = 0.01f;
     private bool wasBelowThreshold = true;
@@ -34,45 +37,64 @@ public class ConfigurationManager : MonoBehaviour
     [SerializeField] Toggle micToggle;
     [SerializeField] TMP_Dropdown micDropdown;
     [SerializeField] Slider volumeSlider;
-    [SerializeField] Slider gainSlider;
-    [SerializeField] Button calibrateButton;
-
+    
     [Header("Sound Settings")]
     [SerializeField] AudioMixer audioMixer;
+
+    [Header("Sound References")]
     [SerializeField] Slider masterSlider;
     [SerializeField] Slider sfxSlider;
     [SerializeField] Slider musicSlider;
-
-    //[Header("Language")]
 
     void Start()
     {
         gameManager = transform.parent.GetComponentInChildren<GameManager>();
 
-        StartMicrophoneConfiguration();
-        StartSoundConfiguration();
+        Start_MicrophoneConfiguration();
+        Start_SoundConfiguration();        
+        Start_DebugConfiguration();
     }
 
-    private void Update()
-    {
-        Debug_MicConfiguration();
-    }
+    private void Update() => Debug_MicConfiguration();
 
     //---------- MICROPHONE ------------------------------------------------------------------------------------------------------------------
 
-    void StartMicrophoneConfiguration()
+    void Start_MicrophoneConfiguration()
     {
         DetectMicrophones();
-        Debug_Start();
-
+        
         micToggle.onValueChanged.AddListener(ToggleMicrophone);
-        gainSlider.onValueChanged.AddListener(ChangeMicrophoneGain);
-        calibrateButton.onClick.AddListener(ToggleCalibration);
+        //gainSlider.onValueChanged.AddListener(ChangeMicrophoneGain);
+        //calibrateButton.onClick.AddListener(ToggleCalibration);
 
-        gainMultiplier = PlayerPrefs.GetFloat("GainMultiplier", gainMultiplier);
+        ToggleMicrophone(PlayerPrefs.GetInt("MicrophoneEnabled", 0) == 1);
+        micToggle.isOn = PlayerPrefs.GetInt("MicrophoneEnabled", 0) == 1;
+        //gainMultiplier = PlayerPrefs.GetFloat("GainMultiplier", gainMultiplier);
         threshold = PlayerPrefs.GetFloat("Threshold", threshold);
         gainSlider.value = gainMultiplier;
         volumeSlider.value = threshold;
+
+        micDropdown.ClearOptions();
+        micDropdown.AddOptions(new System.Collections.Generic.List<string>(microphones));
+        micDropdown.value = System.Array.IndexOf(microphones, selectedMicrophone);
+        micDropdown.onValueChanged.AddListener(ChangeMicrophone);
+    }
+    void Start_DebugConfiguration()
+    {
+        if (!debugMode) return;
+        
+        debugCanvas.gameObject.SetActive(true);
+
+        debugDropdown = debugCanvas.GetComponentInChildren<TMP_Dropdown>();
+        debugSlider = debugCanvas.GetComponentInChildren<Slider>();
+        debugButton = debugCanvas.GetComponentInChildren<Button>();
+
+        debugDropdown.ClearOptions();
+        debugDropdown.AddOptions(new System.Collections.Generic.List<string>(microphones));
+        debugDropdown.value = System.Array.IndexOf(microphones, selectedMicrophone);
+        debugDropdown.onValueChanged.AddListener(ChangeMicrophone);
+        
+        debugButton.image.color = Color.red;
     }
 
     void DetectMicrophones()
@@ -82,30 +104,22 @@ public class ConfigurationManager : MonoBehaviour
         {
             Debug.LogError("No se encontraron micrófonos en el sistema.");
             hasMics = false;
+            micEnabled = false;
+            micToggle.interactable = false;
             return;
         }
         selectedMicrophone = PlayerPrefs.GetString("SelectedMicrophone", microphones[0]);
         StartMicrophone();
-    }
-    void Debug_Start()
-    {
-        debugDropdown.ClearOptions();
-        debugDropdown.AddOptions(new System.Collections.Generic.List<string>(microphones));
-        debugDropdown.value = System.Array.IndexOf(microphones, selectedMicrophone);
-        debugDropdown.onValueChanged.AddListener(ChangeMicrophone);
-        debugButton.image.color = Color.red;
-    }
+    }    
 
     void Debug_MicConfiguration()
     {
-        if (!micActive) return;
+        if (!micActive) return;        
 
         float volume = GetMicVolume() * gainMultiplier;
-        debugSlider.value = volume;
-        volumeSlider.value = debugSlider.value;
+        volumeSlider.value = volume;
 
         bool isAboveThreshold = volume > threshold;
-        debugButton.image.color = isAboveThreshold ? Color.green : Color.red;
 
         if (isAboveThreshold != wasBelowThreshold)
         {
@@ -113,6 +127,11 @@ public class ConfigurationManager : MonoBehaviour
             wasBelowThreshold = isAboveThreshold;
         }
 
+        if (debugMode)
+        {
+            debugSlider.value = volume;
+            debugButton.image.color = isAboveThreshold ? Color.green : Color.red;
+        }
     }
 
     public void StartMicrophone()
@@ -137,9 +156,12 @@ public class ConfigurationManager : MonoBehaviour
         selectedMicrophone = Microphone.devices[index];
         StartMicrophone();
     }
-    public void ToggleMicrophone(bool isOn)
+    public void ToggleMicrophone(bool isEnabled)
     {
-        if (isOn) StartMicrophone(); else StopMicrophone();
+        micEnabled = isEnabled;
+        micDropdown.interactable = isEnabled;
+        PlayerPrefs.SetInt("MicrophoneEnabled", isEnabled ? 1 : 0);
+        if (isEnabled) StartMicrophone(); else StopMicrophone();
     }
     public void SetMicrophoneThreshold(float value)
     {
@@ -186,7 +208,7 @@ public class ConfigurationManager : MonoBehaviour
 
     //---------- SOUND ------------------------------------------------------------------------------------------------------------------
 
-    void StartSoundConfiguration()
+    void Start_SoundConfiguration()
     {
         LoadVolume("MasterVolume", masterSlider);
         LoadVolume("SFXVolume", sfxSlider);

@@ -19,7 +19,7 @@ public class GameManager : MonoBehaviour
     [Header("Local References")]
     [SerializeField] NavigationManager navigationManager;
     [SerializeField] HUDManager uiManager;
-    [SerializeField] MusicManager musicManager;
+    [SerializeField] MusicManager soundManager;
 
     [Header("References")]
     [SerializeField] LevelManager levelManager;
@@ -42,15 +42,15 @@ public class GameManager : MonoBehaviour
                 levelManager.gameObject.SetActive(false);
                 navigationManager.ActivateScreen("Menu");
                 if (playerData.currentLevel != 1) navigationManager.HasPreviousProgress();
-                musicManager.SetMusicTrack("Menu");
-                musicManager.DisableTenseTrack();
+                soundManager.SetMusicTrack("Menu");
+                soundManager.DisableTenseTrack();
                 break;
 
             case GameState.Game:
                 levelManager.gameObject.SetActive(true);
                 levelManager.LoadLevel(playerData.currentLevel);
                 navigationManager.ActivateScreen("Game");
-                musicManager.SetMusicTrack("Game");
+                soundManager.SetMusicTrack("Game");
                 break;
 
             case GameState.Lose:

@@ -64,14 +64,10 @@ public class ConfigurationManager : MonoBehaviour
         DetectMicrophones();
         
         micToggle.onValueChanged.AddListener(ToggleMicrophone);
-        //gainSlider.onValueChanged.AddListener(ChangeMicrophoneGain);
-        //calibrateButton.onClick.AddListener(ToggleCalibration);
-
         ToggleMicrophone(PlayerPrefs.GetInt("MicrophoneEnabled", 0) == 1);
         micToggle.isOn = PlayerPrefs.GetInt("MicrophoneEnabled", 0) == 1;
-        //gainMultiplier = PlayerPrefs.GetFloat("GainMultiplier", gainMultiplier);
+        
         threshold = PlayerPrefs.GetFloat("Threshold", threshold);
-        gainSlider.value = gainMultiplier;
         volumeSlider.value = threshold;
 
         micDropdown.ClearOptions();
